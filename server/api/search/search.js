@@ -11,7 +11,7 @@ const fs = require("fs");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // 상대경로 - 옮기면 바꾸기
-    cb(null, "/home/hungkunge/FindVibe/upload_images");
+    cb(null, "../upload_images");
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname + "-" + Date.now() + ".png");
