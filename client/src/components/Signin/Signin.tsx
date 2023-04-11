@@ -36,6 +36,7 @@ const Signin: React.FunctionComponent = () => {
           ></input>
           <input
             className="w-full rounded-[0.4em] border border-[1px] border-gray outline-0 px-4 py-2"
+            type={"password"}
             placeholder="비밀번호"
             value={userData.password}
             onChange={(e) => {
