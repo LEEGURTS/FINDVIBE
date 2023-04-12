@@ -18,7 +18,7 @@ const FindLocation: React.FunctionComponent = () => {
   }, []);
 
   useEffect(() => {
-    if (isLogin == undefined || isLogin == true) {
+    if (isLogin === undefined || isLogin === true) {
       return;
     }
     setIsLogin(undefined);

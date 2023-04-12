@@ -26,7 +26,7 @@ const FindLocationImageHandle: React.FunctionComponent = () => {
       return;
     }
 
-    if (uploadedIndex == undefined) {
+    if (uploadedIndex === undefined) {
       console.log("first:" + imageList.length);
       sendSearchRequest(imageList).then((res) => {
         setUploadedIndex(imageList.length - 1);

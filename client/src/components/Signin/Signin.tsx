@@ -26,7 +26,7 @@ const Signin: React.FunctionComponent = () => {
             로그인
           </div>
           <input
-            className="w-full rounded-[0.4em] border border-[1px] border-gray outline-0 px-4 py-2 my-2"
+            className="w-full rounded-[0.4em] border-[1px] border-gray outline-0 px-4 py-2 my-2"
             placeholder="이메일"
             value={userData.email}
             onChange={(e) => {
@@ -34,7 +34,7 @@ const Signin: React.FunctionComponent = () => {
             }}
           ></input>
           <input
-            className="w-full rounded-[0.4em] border border-[1px] border-gray outline-0 px-4 py-2"
+            className="w-full rounded-[0.4em] border-[1px] border-gray outline-0 px-4 py-2"
             type={"password"}
             placeholder="비밀번호"
             value={userData.password}
@@ -60,7 +60,7 @@ const Signin: React.FunctionComponent = () => {
               로그인
             </button>
           </div>
-          <div className="w-full border border-b border-gray border-[0px]"></div>
+          <div className="w-full border-[0px] border-b border-gray"></div>
           <button
             className="text-gray my-4"
             onClick={() => {
