@@ -1,10 +1,13 @@
 const mysql = require("mysql");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const connection = mysql.createConnection({
-  host: "localhost",
-  user: "findvibe_user",
-  password: "findvibe1",
-  database: "findvibe_db",
+  host: process.env.HOST,
+  user: process.env.DB_USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE_NAME,
 });
 
 connection.connect((err) => {

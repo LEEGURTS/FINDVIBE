@@ -4,9 +4,13 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const connection = require("../../connection");
 
+const dotenv = require("dotenv");
+
+dotenv.config();
+
 // 토큰 키
-const accessTokenKey = "1q2w3e4r@";
-const refreshTokenKey = "123456789a";
+const accessTokenKey = process.env.ACCESS_TOKEN_KEY;
+const refreshTokenKey = process.env.REFRESH_TOKEN_KEY;
 
 // api - 로그인
 router.post("/login", (req, res) => {

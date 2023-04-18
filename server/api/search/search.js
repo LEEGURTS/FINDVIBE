@@ -1,7 +1,12 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const util = require("../util/util");
-const accessTokenKey = "1q2w3e4r@";
+
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+const accessTokenKey = process.env.ACCESS_TOKEN_KEY;
 
 const router = express.Router();
 const connection = require("../../connection");

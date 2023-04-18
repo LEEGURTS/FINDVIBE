@@ -1,15 +1,16 @@
 const express = require("express");
 var cors = require("cors");
 const bodyParser = require("body-parser");
-const port = process.env.PORT || 5000;
-const dotenv = require("dotenv");
 const path = require("path");
 const authRouter = require("./api/auth/auth");
 const userRouter = require("./api/user/user");
 const searchRouter = require("./api/search/search");
 const cookieParser = require("cookie-parser");
 
+const dotenv = require("dotenv");
 dotenv.config();
+
+const port = process.env.PORT;
 
 const app = express();
 
