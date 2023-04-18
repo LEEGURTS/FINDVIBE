@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogInUserInfo, sendLogInRequest } from "../../API/auth";
 import GridLayout from "../Layout/GridLayout";
 import cursor from "../../assets/Svg/Cursor.svg";
+import { checkJWTToken } from "../../API/check";
 
 const Signin: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -11,6 +12,25 @@ const Signin: React.FunctionComponent = () => {
     email: "",
     password: "",
   });
+
+  const [isLogin, setIsLogin] = useState(false);
+
+  useEffect(() => {
+    checkJWTToken(
+      () => {} /* go to login page */,
+      (result: boolean) => setIsLogin(result)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!isLogin) {
+      return;
+    }
+
+    // home page로 이동
+    navigate("/findvibe");
+  }, [isLogin]);
 
   return (
     <main className="relative w-full h-full h-[calc(100svh - 64px)]">

@@ -2,9 +2,10 @@
 import Footer from "../Footer/Footer";
 import GridLayout from "../Layout/GridLayout";
 import useVH from "react-viewport-height";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { sendSignUpRequest, SignUpUserInfo } from "../../API/user";
 import { useNavigate } from "react-router-dom";
+import { checkJWTToken } from "../../API/check";
 
 const SignUp: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -15,6 +16,25 @@ const SignUp: React.FunctionComponent = () => {
     password: { value: "", check: "" },
     nickname: "",
   });
+
+  const [isLogin, setIsLogin] = useState(false);
+
+  useEffect(() => {
+    checkJWTToken(
+      () => {} /* go to login page */,
+      (result: boolean) => setIsLogin(result)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!isLogin) {
+      return;
+    }
+
+    // home page로 이동
+    navigate("/findvibe");
+  }, [isLogin]);
 
   const emailReg = new RegExp(
     "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])"
@@ -37,6 +57,7 @@ const SignUp: React.FunctionComponent = () => {
     }
     return false;
   };
+
   return (
     <main
       className="relative top-[64px] flex items-center justify-center"

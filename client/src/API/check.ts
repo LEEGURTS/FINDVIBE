@@ -5,7 +5,9 @@ import {
 } from "./auth";
 
 export const checkJWTToken = (
+  /* 유효성 검사 실패 시, 로그인 페이지로 이동 */
   goLoginPage: () => void,
+  /* 로그인 했는지 확인 */
   setIsLogin: (result: boolean) => void
 ) => {
   sendLoginCheckRequest()
