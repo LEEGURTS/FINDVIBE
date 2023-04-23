@@ -1,4 +1,3 @@
-import axios from "axios";
 import { sendPostRequest } from "./api";
 
 export interface LogInUserInfo {

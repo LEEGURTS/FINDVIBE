@@ -15,6 +15,7 @@
 /upload_images
 
 # misc
+/client/.env
 .DS_Store
 .env.local
 .env.development.local

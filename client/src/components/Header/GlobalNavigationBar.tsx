@@ -10,6 +10,8 @@ import { sendLogOutRequest } from "../../API/auth";
 const GlobalNavigationBar: React.FunctionComponent = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [isLogin, setIsLogin] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
@@ -20,29 +22,26 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
     return () => window.removeEventListener("resize", throttleResize);
   }, []);
 
-  const navigate = useNavigate();
-  let before = 0;
-  let diff = 0;
-  const handleScroll = () => {
-    if (!window.scrollY) {
-      return;
-    }
-    diff = window.scrollY - before;
-    before = window.scrollY;
-    if (diff > 0) {
-      setHeaderHeight(64);
-    } else {
-      setHeaderHeight(0);
-    }
-  };
-  const throttleHandle = throttle(handleScroll, 150);
   useEffect(() => {
+    let before = 0;
+    let diff = 0;
+    const handleScroll = () => {
+      if (!window.scrollY) {
+        return;
+      }
+      diff = window.scrollY - before;
+      before = window.scrollY;
+      if (diff > 0) {
+        setHeaderHeight(64);
+      } else {
+        setHeaderHeight(0);
+      }
+    };
+    const throttleHandle = throttle(handleScroll, 150);
     document.addEventListener("scroll", throttleHandle);
     return () => document.removeEventListener("scroll", throttleHandle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
     checkJWTToken(
@@ -103,7 +102,12 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
             >
               인기장소
             </button>
-            <button className="w-[0px] tablet:w-auto">장소찾기</button>
+            <button
+              className="w-[0px] tablet:w-auto"
+              onClick={() => navigate("/myplace")}
+            >
+              나의 기록
+            </button>
           </div>
         )}
         {renderAuthButtons()}

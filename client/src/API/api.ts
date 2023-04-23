@@ -17,7 +17,7 @@ export const sendMultipartRequest = async (
     return;
   }
 
-  formDatas.map((formData, i) => {
+  formDatas.forEach((formData, i) => {
     form.append("image", formData, "image" + i);
   });
 

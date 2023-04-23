@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import IndexPage from "./pages/IndexPage";
+import MyPlacePage from "./pages/MyPlacePage";
 
 const App: React.FunctionComponent = () => {
   const SignInPage = lazy(() => import("./pages/SignInPage"));
@@ -17,6 +18,7 @@ const App: React.FunctionComponent = () => {
       <Suspense>
         <Routes>
           <Route path="/" element={<IndexPage />} />
+          <Route path="/myplace" element={<MyPlacePage />} />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/findvibe" element={<FindLocationPage />} />

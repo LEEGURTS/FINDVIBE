@@ -6,7 +6,7 @@ import {
   InfoWindowF,
   MarkerClustererF,
 } from "@react-google-maps/api";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 import cursor from "../../assets/Svg/Cursor.svg";
 import camera from "../../assets/Svg/Camera.svg";
 import isIos from "./../DetectDevice/isIos";
@@ -36,9 +36,9 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
       return;
     }
     class RotateIcon {
-      img: any;
-      canvas: any;
-      context: any;
+      img: HTMLImageElement;
+      canvas: HTMLCanvasElement;
+      context: CanvasRenderingContext2D | null;
 
       constructor() {
         let img = new Image();
@@ -53,22 +53,24 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
         this.canvas = canvas;
       }
     }
+
     interface RotateIcon {
-      setRotation(deg: number): any;
+      setRotation(deg: number): RotateIcon;
       getUrl(): string;
     }
+
     RotateIcon.prototype.setRotation = function (deg: number) {
       let angle = (deg * Math.PI) / 180,
         centerX = 45 / 2,
         centerY = 45 / 2;
 
-      this.context.clearRect(0, 0, 45, 45);
-      this.context.save();
-      this.context.translate(centerX, centerY);
-      this.context.rotate(angle);
-      this.context.translate(-centerX, -centerY);
-      this.context.drawImage(this.img, 0, 0);
-      this.context.restore();
+      this.context?.clearRect(0, 0, 45, 45);
+      this.context?.save();
+      this.context?.translate(centerX, centerY);
+      this.context?.rotate(angle);
+      this.context?.translate(-centerX, -centerY);
+      this.context?.drawImage(this.img, 0, 0);
+      this.context?.restore();
 
       return this;
     };
@@ -127,14 +129,14 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
       });
       map.fitBounds(bounds);
     }
-  }, [isLoaded, map, selectedLocationIndex]);
+  }, [isLoaded, map, coordinate, selectedLocationIndex]);
 
   if (!isLoaded) {
     return <div className="col-start-1 col-end-13">Loading...</div>;
   }
   return (
     <>
-      <div className="col-span-6 tablet:col-start-2 tablet:col-span-1 flex flex-row tablet:flex-col items-center justify-center">
+      <div className=" col-span-6 tablet:col-start-2 tablet:col-span-1 flex flex-row tablet:flex-col items-center justify-center">
         {coordinate.map((_, idx) => {
           return (
             <button
@@ -150,8 +152,7 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
           );
         })}
       </div>
-
-      <div className="col-span-6 tablet:col-start-3 tablet:col-end-12 h-[50dvh]">
+      <div className=" border border-shalloworange p-2 col-span-6 tablet:col-start-3 tablet:col-end-12">
         <GoogleMap
           onLoad={(map) => {
             setMap(map);
