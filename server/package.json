@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "client": "cd .. && cd client && yarn start",
-    "server": "nodemon main.js",
+    "server": "pm2 start main.js",
+    "stop": "pm2 stop main",
+    "delete": "pm2 delete main",
+    "server_test": "nodemon main.js",
     "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
     "build": "cd .. && cd client && npm run build && cd .. && cd server"
   },
