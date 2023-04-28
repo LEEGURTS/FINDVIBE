@@ -1,4 +1,5 @@
-const connection = require("../../connection");
+const connection = require("../../connect/connection");
+const crypto = require("crypto");
 
 // Promise 반환 -> api에서 await을 붙여 사용가능 -> 비동기 처리
 function getUserIdByNickname(nickname) {
@@ -39,7 +40,33 @@ function saveRequestLog(user_id, img_path) {
   });
 }
 
+// 암호화 key 랜덤 뽑기
+function createRandomString() {
+  return new Promise((resolve, reject) => {
+    crypto.randomBytes(64, (err, buf) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(buf.toString("base64"));
+    });
+  });
+  //return crypto.randomBytes(64).toString("base64");
+}
+
+function convertPassword(password, convert_key) {
+  return new Promise((resolve, reject) => {
+    crypto.pbkdf2(password, convert_key, 9999, 64, "sha512", (err, key) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(key.toString("base64"));
+    });
+  });
+}
+
 module.exports = {
   getUserIdByNickname: getUserIdByNickname,
   saveRequestLog: saveRequestLog,
+  createRandomString: createRandomString,
+  convertPassword: convertPassword,
 };

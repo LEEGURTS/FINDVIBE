@@ -2,7 +2,8 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
-const connection = require("../../connection");
+const connection = require("../../connect/connection");
+const util = require("../util/util");
 
 const dotenv = require("dotenv");
 
@@ -18,7 +19,7 @@ router.post("/login", (req, res) => {
 
   connection.query(
     `SELECT * FROM user_info WHERE email = '${email}'`,
-    (err, results) => {
+    async (err, results) => {
       if (err) {
         console.error(err);
         res.sendStatus(500).json({ success: false, error: "Server Error!" });
@@ -32,7 +33,14 @@ router.post("/login", (req, res) => {
 
       const user_data = results[0];
 
-      if (user_data.password != password) {
+      const convert_key = user_data.convert_key;
+
+      const convert_password = await util.convertPassword(
+        password,
+        convert_key
+      );
+
+      if (user_data.password != convert_password) {
         res
           .status(401)
           .json({ success: false, error: "Password is not Correct." });

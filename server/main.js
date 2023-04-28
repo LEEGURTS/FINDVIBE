@@ -2,13 +2,11 @@ const express = require("express");
 var cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
-const authRouter = require("./api/auth/auth");
-const userRouter = require("./api/user/user");
-const searchRouter = require("./api/search/search");
 const cookieParser = require("cookie-parser");
-
 const dotenv = require("dotenv");
 dotenv.config();
+
+const route = require("./src/route/route");
 
 const port = process.env.PORT;
 
@@ -25,9 +23,7 @@ app.use(cors());
 app.use(express.static(`${__dirname}/../client/build`));
 
 // api 엔드 포인트 등록
-app.use("/auth", authRouter);
-app.use("/user", userRouter);
-app.use("/search", searchRouter);
+app.use("", route);
 
 // react 앱과 연결
 app.get(`*`, (req, res) => {

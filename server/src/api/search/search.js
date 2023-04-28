@@ -9,7 +9,7 @@ dotenv.config();
 const accessTokenKey = process.env.ACCESS_TOKEN_KEY;
 
 const router = express.Router();
-const connection = require("../../connection");
+const connection = require("../../connect/connection");
 const multer = require("multer");
 const fs = require("fs");
 
