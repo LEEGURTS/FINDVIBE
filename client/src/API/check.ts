@@ -1,35 +1,34 @@
+import { LoginStore, useLogin } from "../State/userInfo";
 import {
-  sendLoginCheckRequest,
+  sendCheckRequest,
   sendLogOutRequest,
-  sendRefreshTokenRequest,
+  sendRefreshRequest,
 } from "./auth";
 
-export const checkJWTToken = (
-  /* 유효성 검사 실패 시, 로그인 페이지로 이동 */
-  goLoginPage: () => void,
-  /* 로그인 했는지 확인 */
-  setIsLogin: (result: boolean) => void
-) => {
-  sendLoginCheckRequest()
-    .then(() => {
-      setIsLogin(true);
-    })
-    .catch((error) => {
-      // access token 만료
-      if (error.response.status === 401) {
-        // 토큰 재발행
-        sendRefreshTokenRequest()
-          .then(() => {
-            setIsLogin(false);
-          })
-          .catch((error) => {
-            // 재발행 토큰 만료 시, 로그아웃 + login page로 이동
-            if (error.response.status === 401) {
-              sendLogOutRequest().then(() => {
-                goLoginPage();
-              });
-            }
-          });
+// 특정 api 사용 할 때, access Token으로 권한 확인 ( is_admin 확인, 현재는 사용부분 X )
+export const checkAccessToken = (loginState: LoginStore) => {
+  console.log(
+    loginState.isLogin,
+    loginState.loginTime,
+    loginState.token,
+    loginState.last_login_email
+  );
+  sendCheckRequest(loginState.token)
+    .then(() => loginState.setIsLogin(true))
+    .catch((err) => {
+      if (err.response.status === 401) {
+        refreshAccessToken(loginState);
       }
+    });
+};
+
+export const refreshAccessToken = (loginState: LoginStore) => {
+  sendRefreshRequest()
+    .then((res) => {
+      loginState.setLoginTime(res.login_time);
+      loginState.setToken(res.token);
+    })
+    .catch(() => {
+      sendLogOutRequest().then(() => loginState.setInitialize());
     });
 };

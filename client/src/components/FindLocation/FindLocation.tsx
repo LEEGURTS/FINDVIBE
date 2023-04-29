@@ -3,30 +3,19 @@ import GridLayout from "../Layout/GridLayout";
 import Footer from "../Footer/Footer";
 import FindLocationImageHandle from "./FindLocationImageHandle";
 import { useEffect, useState } from "react";
-import { checkJWTToken } from "../../API/check";
 import { useNavigate } from "react-router-dom";
+import { useLogin } from "../../State/userInfo";
 
 const FindLocation: React.FunctionComponent = () => {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState<boolean>();
+  const loginState = useLogin();
 
   useEffect(() => {
-    checkJWTToken(
-      () => navigate("/signin"),
-      (result: boolean) => setIsLogin(result)
-    );
-  }, []);
-
-  useEffect(() => {
-    if (isLogin === undefined || isLogin === true) {
+    if (!loginState.isLogin) {
+      navigate("/signin");
       return;
     }
-    setIsLogin(undefined);
-    checkJWTToken(
-      () => navigate("/signin"),
-      (result: boolean) => setIsLogin(result)
-    );
-  }, [isLogin]);
+  }, [loginState]);
 
   return (
     <main className="relative w-full top-[64px] z-40 min-h-[calc(100vh-64px)]">
@@ -38,7 +27,7 @@ const FindLocation: React.FunctionComponent = () => {
           <p className="text-[#767676]">
             이미지를 업로드하여 촬영한 장소를 찾아보세요.
           </p>
-          {isLogin && <p>로그인 중!</p>}
+          {loginState.isLogin && <p>로그인 중!</p>}
         </div>
         <FindLocationImageHandle />
       </GridLayout>

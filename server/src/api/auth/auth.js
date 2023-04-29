@@ -7,7 +7,6 @@ const UserInfo = require("../../connect/models/user_info");
 const util = require("../util/util");
 
 const dotenv = require("dotenv");
-const sequelize = require("../../connect/connection");
 
 dotenv.config();
 
@@ -48,6 +47,7 @@ router.post("/login", async (req, res) => {
     {
       email: user_data.email,
       nickname: user_data.nickname,
+      is_admin: user_data.is_admin,
     },
     accessTokenKey,
     { expiresIn: "10m", issuer: "FindVibe" }
@@ -56,23 +56,12 @@ router.post("/login", async (req, res) => {
   // accessToken 재발행에 사용 - 만료기간 2시간
   const refreashToken = jwt.sign(
     {
-      email: user_data.email,
-      nickname: user_data.nickname,
+      user_id: user_data.user_id,
+      is_admin: user_data.is_admin,
     },
     refreshTokenKey,
     { expiresIn: "2h", issuer: "FindVibe" }
   );
-
-  req.session.user = {
-    id: user_data.user_id,
-    email: user_data.email,
-    name: user_data.name,
-  };
-
-  res.cookie("find_vibe_access_token", accessToken, {
-    httpOnly: true,
-    secure: false,
-  });
 
   res.cookie("find_vibe_refresh_token", refreashToken, {
     httpOnly: true,
@@ -81,6 +70,7 @@ router.post("/login", async (req, res) => {
 
   res.status(200).json({
     success: true,
+    access_token: accessToken,
     login_time: new Date(),
     error: "",
   });
@@ -88,15 +78,13 @@ router.post("/login", async (req, res) => {
 
 // api -  로그아웃
 router.post("/logout", (req, res) => {
-  res.clearCookie("find_vibe_access_token");
   res.clearCookie("find_vibe_refresh_token");
-  res.clearCookie("find_vibe_session");
   res.json({ success: true, error: "" });
 });
 
 // check access_token + return user_data
 router.post("/check", (req, res) => {
-  const checkToken = req.cookies.find_vibe_access_token;
+  const checkToken = req.body;
 
   if (!checkToken) {
     return res.status(401).json({ success: false, error: "Not exist Token." });
@@ -104,11 +92,9 @@ router.post("/check", (req, res) => {
 
   try {
     // 검증 - 실패 시 에러 발생
-    const user_data = jwt.verify(checkToken, accessTokenKey);
+    jwt.verify(checkToken, accessTokenKey);
 
-    const { password, ...other } = user_data;
-
-    return res.status(200).json({ other, success: true });
+    return res.status(200).json({ success: true });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return res
@@ -144,17 +130,29 @@ router.post("/refresh", (req, res) => {
       {
         email: user_data.email,
         nickname: user_data.nickname,
+        is_admin: user_data.is_admin,
       },
       accessTokenKey,
       { expiresIn: "10m", issuer: "FindVibe" }
     );
 
-    res.cookie("find_vibe_access_token", accessToken, {
+    const refreashToken = jwt.sign(
+      {
+        user_id: user_data.user_id,
+        is_admin: user_data.is_admin,
+      },
+      refreshTokenKey,
+      { expiresIn: "2h", issuer: "FindVibe" }
+    );
+
+    res.cookie("find_vibe_refresh_token", refreashToken, {
       httpOnly: true,
       secure: false,
     });
 
-    return res.status(200).json({ success: true, error: "" });
+    return res
+      .status(200)
+      .json({ success: true, token: accessToken, error: "" });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return res

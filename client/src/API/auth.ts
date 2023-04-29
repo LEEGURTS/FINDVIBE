@@ -13,10 +13,10 @@ export const sendLogOutRequest = () => {
   return sendPostRequest("/auth/logout", null);
 };
 
-export const sendLoginCheckRequest = () => {
-  return sendPostRequest("/auth/check", null);
+export const sendCheckRequest = (token: string) => {
+  return sendPostRequest("/auth/check", token);
 };
 
-export const sendRefreshTokenRequest = () => {
+export const sendRefreshRequest = () => {
   return sendPostRequest("/auth/refresh", null);
 };

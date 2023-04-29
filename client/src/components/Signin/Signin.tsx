@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { LogInUserInfo, sendLogInRequest } from "../../API/auth";
 import GridLayout from "../Layout/GridLayout";
 import cursor from "../../assets/Svg/Cursor.svg";
-import { checkJWTToken } from "../../API/check";
+import { useLogin } from "../../State/userInfo";
 
 const Signin: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -13,24 +13,25 @@ const Signin: React.FunctionComponent = () => {
     password: "",
   });
 
-  const [isLogin, setIsLogin] = useState(false);
+  const loginState = useLogin();
 
   useEffect(() => {
-    checkJWTToken(
-      () => {} /* go to login page */,
-      (result: boolean) => setIsLogin(result)
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!isLogin) {
+    if (!loginState.isLogin) {
       return;
     }
-
     // home page로 이동
     navigate("/findvibe");
-  }, [isLogin]);
+  }, [loginState]);
+
+  const Login = () => {
+    sendLogInRequest(userData).then((res) => {
+      loginState.setToken(res.access_token);
+      loginState.setIsLogin(true);
+      loginState.setLoginEmail(userData.email);
+      loginState.setLoginTime(new Date());
+      navigate("/findvibe");
+    });
+  };
 
   return (
     <main className="relative w-full h-full h-[calc(100svh - 64px)]">
@@ -70,11 +71,7 @@ const Signin: React.FunctionComponent = () => {
             <button
               className="bg-gradient-to-r from-deeporange to-shalloworange px-4 py-2 rounded-full text-white flex items-center justify-center font-pretendardBold"
               onClick={() => {
-                sendLogInRequest(userData).then((res) => {
-                  if (res.success) {
-                    navigate("/findvibe");
-                  }
-                });
+                Login();
               }}
             >
               로그인

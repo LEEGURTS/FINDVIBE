@@ -4,14 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useState } from "react";
 import { throttle } from "lodash";
-import { checkJWTToken } from "../../API/check";
 import { sendLogOutRequest } from "../../API/auth";
+import { useLogin } from "../../State/userInfo";
 
 const GlobalNavigationBar: React.FunctionComponent = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate();
+
+  const loginState = useLogin();
 
   useEffect(() => {
     const handleResize = () => {
@@ -43,22 +44,35 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const LogOut = () => {
+    sendLogOutRequest().then(() => {
+      loginState.setInitialize();
+      navigate("/signin");
+    });
+  };
+
   useEffect(() => {
-    checkJWTToken(
-      () => navigate("/signin"),
-      (result: boolean) => setIsLogin(result)
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!loginState.isLogin) {
+      navigate("/Signin");
+      return;
+    }
+
+    const now_time = new Date().getTime();
+    const loginTime = new Date(loginState.loginTime.toString()).getTime();
+
+    if (now_time - loginTime > 60 * 60 * 1000) {
+      LogOut();
+    }
+  }, [loginState]);
 
   const renderAuthButtons = () => {
-    if (isLogin) {
+    if (loginState.isLogin) {
       return (
         <div className="col-start-12 justify-self-end justify-between w-[150px] flex">
           <button
             className="bg-gradient-to-r from-deeporange to-shalloworange px-4 py-2 rounded-full text-white flex items-center justify-center font-pretendardBold"
             onClick={() => {
-              sendLogOutRequest().then(() => navigate("/signin"));
+              LogOut();
             }}
           >
             로그아웃

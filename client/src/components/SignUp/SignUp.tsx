@@ -5,7 +5,7 @@ import useVH from "react-viewport-height";
 import { useEffect, useState } from "react";
 import { sendSignUpRequest, SignUpUserInfo } from "../../API/user";
 import { useNavigate } from "react-router-dom";
-import { checkJWTToken } from "../../API/check";
+import { useLogin } from "../../State/userInfo";
 
 const SignUp: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -17,24 +17,23 @@ const SignUp: React.FunctionComponent = () => {
     nickname: "",
   });
 
-  const [isLogin, setIsLogin] = useState(false);
+  const loginState = useLogin();
+
+  const SignUp = () => {
+    if (checkPassword()) {
+      sendSignUpRequest(userData).then(() => {
+        navigate("/signin");
+      });
+    }
+  };
 
   useEffect(() => {
-    checkJWTToken(
-      () => {} /* go to login page */,
-      (result: boolean) => setIsLogin(result)
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!isLogin) {
+    if (!loginState.isLogin) {
       return;
     }
-
     // home page로 이동
     navigate("/findvibe");
-  }, [isLogin]);
+  }, [loginState]);
 
   const emailReg = new RegExp(
     "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])"
@@ -136,14 +135,7 @@ const SignUp: React.FunctionComponent = () => {
             <button
               className="font-pretendardBold w-full px-4 py-2 rounded-[15px] text-white bg-gradient-to-r from-deeporange to-shalloworange"
               onClick={() => {
-                if (checkPassword()) {
-                  sendSignUpRequest(userData).then((res) => {
-                    if (!res.success) {
-                      return;
-                    }
-                    navigate("/signin");
-                  });
-                }
+                SignUp();
               }}
             >
               회원가입
