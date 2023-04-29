@@ -1,7 +1,7 @@
 const express = require("express");
-const connection = require("../../connect/connection");
 const util = require("../util/util");
 const router = express.Router();
+const UserInfo = require("../../connect/models/user_info");
 
 // api - 회원 가입
 router.post("/signup", async (req, res) => {
@@ -11,18 +11,20 @@ router.post("/signup", async (req, res) => {
 
   const convert_password = await util.convertPassword(password, convert_key);
 
-  const sql = `INSERT INTO user_info (email, password, nickname, convert_key, join_time, is_admin) VALUES (?, ?, ?, ?, now(), false)`;
-  connection.query(
-    sql,
-    [email, convert_password, nickname, convert_key],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ success: false, error: "server error" });
-      }
+  UserInfo.create({
+    email: email,
+    password: convert_password,
+    nickname: nickname,
+    convert_key: convert_key,
+    is_admin: false,
+  })
+    .then(() => {
       return res.json({ success: true, error: "" });
-    }
-  );
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json({ success: false, error: "server error" });
+    });
 });
 
 module.exports = router;

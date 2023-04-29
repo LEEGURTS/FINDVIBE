@@ -3,6 +3,7 @@ var cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const session = require("express-session");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -15,7 +16,18 @@ const app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(
+  session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+    },
+    name: "find_vibe_session",
+  })
+);
 // setting
 app.use(cors());
 

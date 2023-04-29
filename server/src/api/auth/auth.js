@@ -2,10 +2,12 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
-const connection = require("../../connect/connection");
+//const connection = require("../../connect/connection");
+const UserInfo = require("../../connect/models/user_info");
 const util = require("../util/util");
 
 const dotenv = require("dotenv");
+const sequelize = require("../../connect/connection");
 
 dotenv.config();
 
@@ -14,78 +16,81 @@ const accessTokenKey = process.env.ACCESS_TOKEN_KEY;
 const refreshTokenKey = process.env.REFRESH_TOKEN_KEY;
 
 // api - 로그인
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  connection.query(
-    `SELECT * FROM user_info WHERE email = '${email}'`,
-    async (err, results) => {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500).json({ success: false, error: "Server Error!" });
-        return;
-      }
+  const user_data = await UserInfo.findOne({
+    raw: true,
+    where: { email: email },
+  }).catch((err) => {
+    console.error(err);
+    res.status(500).json({ success: false, error: "db connect fail!" });
+    return;
+  });
 
-      if (results.length === 0) {
-        res.status(401).json({ success: false, error: "Wrong Email." });
-        return;
-      }
+  if (!user_data) {
+    res.status(401).json({ success: false, error: "Not Exist User." });
+    return;
+  }
 
-      const user_data = results[0];
-
-      const convert_key = user_data.convert_key;
-
-      const convert_password = await util.convertPassword(
-        password,
-        convert_key
-      );
-
-      if (user_data.password != convert_password) {
-        res
-          .status(401)
-          .json({ success: false, error: "Password is not Correct." });
-        return;
-      }
-
-      // 사용자 정보에 접근에 사용 - 만료기간 1분
-      const accessToken = jwt.sign(
-        {
-          email: user_data.email,
-          nickname: user_data.nickname,
-        },
-        accessTokenKey,
-        { expiresIn: "1m", issuer: "FindVibe" }
-      );
-
-      // accessToken 재발행에 사용 - 만료기간 1일
-      const refreashToken = jwt.sign(
-        {
-          email: user_data.email,
-          nickname: user_data.nickname,
-        },
-        refreshTokenKey,
-        { expiresIn: "24h", issuer: "FindVibe" }
-      );
-
-      res.cookie("find_vibe_access_token", accessToken, {
-        httpOnly: true,
-        secure: false,
-      });
-
-      res.cookie("find_vibe_refresh_token", refreashToken, {
-        httpOnly: true,
-        secure: false,
-      });
-
-      res.status(200).json({ success: true, error: "" });
-    }
+  const convert_password = await util.convertPassword(
+    password,
+    user_data.convert_key
   );
+
+  if (user_data.password != convert_password) {
+    res.status(401).json({ success: false, error: "Password is not Correct." });
+    return;
+  }
+
+  // 사용자 정보에 접근에 사용 - 만료기간 10분
+  const accessToken = jwt.sign(
+    {
+      email: user_data.email,
+      nickname: user_data.nickname,
+    },
+    accessTokenKey,
+    { expiresIn: "10m", issuer: "FindVibe" }
+  );
+
+  // accessToken 재발행에 사용 - 만료기간 2시간
+  const refreashToken = jwt.sign(
+    {
+      email: user_data.email,
+      nickname: user_data.nickname,
+    },
+    refreshTokenKey,
+    { expiresIn: "2h", issuer: "FindVibe" }
+  );
+
+  req.session.user = {
+    id: user_data.user_id,
+    email: user_data.email,
+    name: user_data.name,
+  };
+
+  res.cookie("find_vibe_access_token", accessToken, {
+    httpOnly: true,
+    secure: false,
+  });
+
+  res.cookie("find_vibe_refresh_token", refreashToken, {
+    httpOnly: true,
+    secure: false,
+  });
+
+  res.status(200).json({
+    success: true,
+    login_time: new Date(),
+    error: "",
+  });
 });
 
 // api -  로그아웃
 router.post("/logout", (req, res) => {
   res.clearCookie("find_vibe_access_token");
   res.clearCookie("find_vibe_refresh_token");
+  res.clearCookie("find_vibe_session");
   res.json({ success: true, error: "" });
 });
 
