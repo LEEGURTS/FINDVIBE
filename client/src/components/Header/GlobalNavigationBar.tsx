@@ -6,6 +6,7 @@ import { useState } from "react";
 import { throttle } from "lodash";
 import { sendLogOutRequest } from "../../API/auth";
 import { useLogin } from "../../State/userInfo";
+import { checkAccessToken } from "../../API/check";
 
 const GlobalNavigationBar: React.FunctionComponent = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -53,15 +54,15 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
 
   useEffect(() => {
     if (!loginState.isLogin) {
-      navigate("/Signin");
+      LogOut();
       return;
     }
 
     const now_time = new Date().getTime();
     const loginTime = new Date(loginState.loginTime.toString()).getTime();
 
-    if (now_time - loginTime > 60 * 60 * 1000) {
-      LogOut();
+    if (now_time - loginTime > 10 * 60 * 1000) {
+      checkAccessToken(loginState);
     }
   }, [loginState]);
 
