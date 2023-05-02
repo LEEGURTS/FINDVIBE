@@ -1,7 +1,7 @@
 import LogoSvg from "../../assets/Svg/LogoSvg";
 import GridLayout from "./../Layout/GridLayout";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { useState } from "react";
 import { throttle } from "lodash";
 import { sendLogOutRequest } from "../../API/auth";
@@ -52,12 +52,7 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
     });
   };
 
-  useEffect(() => {
-    if (!loginState.isLogin) {
-      LogOut();
-      return;
-    }
-
+  useLayoutEffect(() => {
     const now_time = new Date().getTime();
     const loginTime = new Date(loginState.loginTime.toString()).getTime();
 

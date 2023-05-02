@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LogInUserInfo, sendLogInRequest } from "../../API/auth";
 import GridLayout from "../Layout/GridLayout";
@@ -16,6 +16,13 @@ const Signin: React.FunctionComponent = () => {
   const loginState = useLogin();
   const location = useLocation();
   const from = location?.state?.redirectedFrom?.pathname || "/findvibe";
+
+  useLayoutEffect(() => {
+    if (!loginState.isLogin) {
+      navigate("/home");
+      return;
+    }
+  }, [loginState.isLogin]);
 
   const Login = () => {
     sendLogInRequest(userData).then((res) => {
