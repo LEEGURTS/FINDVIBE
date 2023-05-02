@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LogInUserInfo, sendLogInRequest } from "../../API/auth";
 import GridLayout from "../Layout/GridLayout";
 import cursor from "../../assets/Svg/Cursor.svg";
@@ -14,14 +14,8 @@ const Signin: React.FunctionComponent = () => {
   });
 
   const loginState = useLogin();
-
-  useEffect(() => {
-    if (!loginState.isLogin) {
-      return;
-    }
-    // home page로 이동
-    navigate("/findvibe");
-  }, [loginState]);
+  const location = useLocation();
+  const from = location?.state?.redirectedFrom?.pathname || "/findvibe";
 
   const Login = () => {
     sendLogInRequest(userData).then((res) => {
@@ -29,7 +23,7 @@ const Signin: React.FunctionComponent = () => {
       loginState.setIsLogin(true);
       loginState.setLoginEmail(userData.email);
       loginState.setLoginTime(new Date());
-      navigate("/findvibe");
+      navigate(from);
     });
   };
 

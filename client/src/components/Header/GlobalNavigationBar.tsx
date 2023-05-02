@@ -64,7 +64,7 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
     if (now_time - loginTime > 10 * 60 * 1000) {
       checkAccessToken(loginState);
     }
-  }, [loginState]);
+  }, [loginState.isLogin]);
 
   const renderAuthButtons = () => {
     if (loginState.isLogin) {
