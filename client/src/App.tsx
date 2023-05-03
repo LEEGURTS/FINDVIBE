@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import IndexPage from "./pages/IndexPage";
 import MyPlacePage from "./pages/MyPlacePage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import MyPagePage from "./pages/MyPagePage";
 
 const App: React.FunctionComponent = () => {
   const SignInPage = lazy(() => import("./pages/SignInPage"));
@@ -21,6 +22,7 @@ const App: React.FunctionComponent = () => {
           <Route path="/" element={<IndexPage />} />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/mypage" element={<MyPagePage />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/myplace" element={<MyPlacePage />} />
             <Route path="/findvibe" element={<FindLocationPage />} />
