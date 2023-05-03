@@ -1,3 +1,19 @@
+# 초기 세팅
+
+1. 필요한 패키지 설치
+   <pre><code> npm install </code></pre>
+
+   또는
+    <pre><code> yarn </code></pre>
+
+2. 기본 명령어
+
+- 개발 중인 클라이언트 보기 (dev모드)
+<pre><code> npm start </code></pre>
+
+- build 하기
+<pre><code> npm run build </code></pre>
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
