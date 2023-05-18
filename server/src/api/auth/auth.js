@@ -57,6 +57,7 @@ router.post("/login", async (req, res) => {
   const refreashToken = jwt.sign(
     {
       user_id: user_data.user_id,
+      nickname: user_data.nickname,
       is_admin: user_data.is_admin,
     },
     refreshTokenKey,

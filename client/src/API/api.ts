@@ -8,7 +8,7 @@ export const sendPostRequest = async (path: string, sendData: any | null) => {
 // image file을 포함하는 요청 -> multipart로 구현
 export const sendMultipartRequest = async (
   path: string,
-  formDatas?: File[]
+  formDatas?: File[],
 ) => {
   const form = new FormData();
 

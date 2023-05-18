@@ -2,11 +2,13 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const util = require("../util/util");
 
+const UserInfo = require("../../connect/models/user_info");
 const dotenv = require("dotenv");
+const axios = require('axios');
 
 dotenv.config();
 
-const accessTokenKey = process.env.ACCESS_TOKEN_KEY;
+const refreshTokenKey = process.env.REFRESH_TOKEN_KEY;
 
 const router = express.Router();
 const multer = require("multer");
@@ -26,7 +28,7 @@ const upload = multer({ storage: storage });
 // 데이터 받아서 저장 + python 서버에 전송
 router.post("/", upload.array("image"), async (req, res) => {
   // 유효성 확인 - 사용자 정보 받아오기
-  const checkToken = req.cookies.find_vibe_access_token;
+  const checkToken = req.cookies.find_vibe_refresh_token;
 
   if (!checkToken) {
     return res
@@ -36,13 +38,22 @@ router.post("/", upload.array("image"), async (req, res) => {
 
   try {
     // 검증 - 실패 시 에러 발생
-    const user_data = jwt.verify(checkToken, accessTokenKey);
+    const user_data = jwt.verify(checkToken, refreshTokenKey);
 
     const nickname = user_data.nickname;
 
-    const userId = await util.getUserIdByNickname(nickname);
+    const user_info = await UserInfo.findOne({
+      raw: true,
+      where: { nickname : nickname },
+    }).catch((err) => {
+      console.error(err);
+      res.status(500).json({ success: false, error: "db connect fail!" });
+      return;
+    });
 
-    console.log("userId:" + userId);
+    const user_id = user_info.user_id;
+
+    console.log("userId:" + user_id);
 
     // path
     const imagePathList = req.files.map((img) => {
@@ -50,10 +61,22 @@ router.post("/", upload.array("image"), async (req, res) => {
     });
 
     // path와 user_info를 DB에 저장
-    imagePathList.map(async (imagePath) => {
-      await util.saveRequestLog(userId, imagePath);
-    });
+    //imagePathList.map(async (imagePath) => {
+    //  await util.saveRequestLog(userId, imagePath);
+    //});
+
     // TODO: python 서버로 요청 전송
+    const url = 'http://localhost:5002/predict';
+
+    axios.post(url, imagePathList)
+      .then(response => {
+        // 응답 처리
+        console.log(response.data);
+      })
+      .catch(error => {
+        // 에러 처리
+        console.error(error);
+      });
 
     // 요청 결과가 오면 결과를 DB에 저장 밑 반환 success와 coordinate 전송하기
     return res.status(200).json({ success: true });
