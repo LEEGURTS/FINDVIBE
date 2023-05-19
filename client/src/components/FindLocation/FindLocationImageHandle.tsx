@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import FindLocationGetImageBox from "./FindLocationGetImageBox";
 import GoogleMapApi from "../GoogleMap/GoogleMapApi";
-import { Coordinate, sendSearchRequest } from "../../API/search";
+import { Coordinate, sendPredictRequest } from "../../API/predict";
+import { useLogin } from "../../State/userInfo";
 
 const FindLocationImageHandle: React.FunctionComponent = () => {
   const [imageList, setImageList] = useState<File[]>([]);
@@ -10,6 +11,8 @@ const FindLocationImageHandle: React.FunctionComponent = () => {
   // 분석 결과 저장하는 state
   const [analyzeResultList, setAnalyzeResultList] = useState<Coordinate[]>([]);
   //analyzeResultList 의 형태를 {target:Coordinate, posList:Coordinate[]}[] 로 바꿔야함
+
+  const loginState = useLogin();
 
   // 좌표 계산 함수 -> 분석 결과로 대체하기
   const getCoordinate = () => {
@@ -28,12 +31,12 @@ const FindLocationImageHandle: React.FunctionComponent = () => {
 
     if (uploadedIndex === undefined) {
       console.log("first:" + imageList.length);
-      sendSearchRequest(imageList).then((res) => {
+      sendPredictRequest(imageList, loginState.nickname).then((res) => {
         setUploadedIndex(imageList.length - 1);
         setAnalyzeResultList([...analyzeResultList, res.coordinate]);
       });
     } else {
-      sendSearchRequest(imageList.slice(uploadedIndex + 1)).then((res) => {
+      sendPredictRequest(imageList.slice(uploadedIndex + 1), loginState.nickname).then((res) => {
         setUploadedIndex(imageList.length - 1);
         setAnalyzeResultList([...analyzeResultList, res.coordinate]);
       });

@@ -8,6 +8,7 @@ export const sendPostRequest = async (path: string, sendData: any | null) => {
 // image file을 포함하는 요청 -> multipart로 구현
 export const sendMultipartRequest = async (
   path: string,
+  nickname: string,
   formDatas?: File[],
 ) => {
   const form = new FormData();
@@ -20,6 +21,8 @@ export const sendMultipartRequest = async (
   formDatas.forEach((formData, i) => {
     form.append("image", formData, "image" + i);
   });
+
+  form.append("nickname", nickname);
 
   try {
     const response = await axios({

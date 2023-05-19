@@ -39,7 +39,7 @@ function createTokens(user_data){
       is_admin: user_data.is_admin,
     },
     accessTokenKey,
-    { expiresIn: "1m", issuer: "FindVibe" }
+    { expiresIn: "1h", issuer: "FindVibe" }
   );
 
    // accessToken 재발행에 사용 - 만료기간 24시간

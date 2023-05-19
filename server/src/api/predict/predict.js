@@ -1,6 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const util = require("../util/util");
+const predictContext = require("./predict_context");
 
 const UserInfo = require("../../connect/models/user_info");
 const dotenv = require("dotenv");
@@ -8,7 +8,7 @@ const axios = require('axios');
 
 dotenv.config();
 
-const refreshTokenKey = process.env.REFRESH_TOKEN_KEY;
+const accessTokenKey = process.env.ACCESS_TOKEN_KEY;
 
 const router = express.Router();
 const multer = require("multer");
@@ -25,10 +25,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// 데이터 받아서 저장 + python 서버에 전송
+// 데이터 받아서 저장 + python 서버에 전송 -----------------------------------------------------
+
 router.post("/", upload.array("image"), async (req, res) => {
   // 유효성 확인 - 사용자 정보 받아오기
-  const checkToken = req.cookies.find_vibe_refresh_token;
+  const checkToken = req.cookies.find_vibe_access_token;
 
   if (!checkToken) {
     return res
@@ -38,9 +39,9 @@ router.post("/", upload.array("image"), async (req, res) => {
 
   try {
     // 검증 - 실패 시 에러 발생
-    const user_data = jwt.verify(checkToken, refreshTokenKey);
+    jwt.verify(checkToken, accessTokenKey);
 
-    const nickname = user_data.nickname;
+    const nickname = req.body.nickname;
 
     const user_info = await UserInfo.findOne({
       raw: true,
@@ -53,25 +54,22 @@ router.post("/", upload.array("image"), async (req, res) => {
 
     const user_id = user_info.user_id;
 
-    console.log("userId:" + user_id);
-
-    // path
     const imagePathList = req.files.map((img) => {
       return img.path;
     });
 
-    // path와 user_info를 DB에 저장
-    //imagePathList.map(async (imagePath) => {
-    //  await util.saveRequestLog(userId, imagePath);
-    //});
+    const request_log_list = await predictContext.processImagePathList(user_id, imagePathList);
 
     // TODO: python 서버로 요청 전송
     const url = 'http://localhost:5002/predict';
 
-    axios.post(url, imagePathList)
-      .then(response => {
-        // 응답 처리
+    axios.post(url, request_log_list)
+      .then(async(response) => {
+        // data는 json으로 옴
         console.log(response.data);
+        // json = [결과1, 결과2.....]
+        // 결과 = {log_id, user_id, 결과}
+        // await predictContext.saveResponseLog(결과 데이터 채우기);
       })
       .catch(error => {
         // 에러 처리
