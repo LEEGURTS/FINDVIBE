@@ -1,38 +1,15 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
-
 const router = express.Router();
-//const connection = require("../../connect/connection");
-const UserInfo = require("../../connect/models/user_info");
-const util = require("../util/util");
-
-const dotenv = require("dotenv");
-
-dotenv.config();
-
-// 토큰 키
-const accessTokenKey = process.env.ACCESS_TOKEN_KEY;
-const refreshTokenKey = process.env.REFRESH_TOKEN_KEY;
+const authContext = require("./auth_context");
+const userContext = require("../user/user_context");
 
 // api - 로그인
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  const user_data = await UserInfo.findOne({
-    raw: true,
-    where: { email: email },
-  }).catch((err) => {
-    console.error(err);
-    res.status(500).json({ success: false, error: "db connect fail!" });
-    return;
-  });
+  const user_data = await authContext.getUserDataByEmail(email);
 
-  if (!user_data) {
-    res.status(401).json({ success: false, error: "Not Exist User." });
-    return;
-  }
-
-  const convert_password = await util.convertPassword(
+  const convert_password = await userContext.convertPassword(
     password,
     user_data.convert_key
   );
@@ -41,37 +18,20 @@ router.post("/login", async (req, res) => {
     res.status(401).json({ success: false, error: "Password is not Correct." });
     return;
   }
+  
+  const token_list = authContext.createTokens(user_data);
 
-  // 사용자 정보에 접근에 사용 - 만료기간 10분
-  const accessToken = jwt.sign(
-    {
-      email: user_data.email,
-      nickname: user_data.nickname,
-      is_admin: user_data.is_admin,
-    },
-    accessTokenKey,
-    { expiresIn: "10m", issuer: "FindVibe" }
-  );
-
-  // accessToken 재발행에 사용 - 만료기간 2시간
-  const refreashToken = jwt.sign(
-    {
-      user_id: user_data.user_id,
-      nickname: user_data.nickname,
-      is_admin: user_data.is_admin,
-    },
-    refreshTokenKey,
-    { expiresIn: "2h", issuer: "FindVibe" }
-  );
-
-  res.cookie("find_vibe_refresh_token", refreashToken, {
+  res.cookie("find_vibe_access_token", token_list[0], {
     httpOnly: true,
     secure: false,
   });
 
+  req.session.refreshToken = token_list[1];
+
   res.status(200).json({
     success: true,
-    access_token: accessToken,
+    nickname: user_data.nickname,
+    email: email,
     login_time: new Date(),
     error: "",
   });
@@ -79,13 +39,15 @@ router.post("/login", async (req, res) => {
 
 // api -  로그아웃
 router.post("/logout", (req, res) => {
-  res.clearCookie("find_vibe_refresh_token");
+  res.clearCookie("find_vibe_access_token");
+  delete req.session.refreshToken;
+
   res.json({ success: true, error: "" });
 });
 
 // check access_token + return user_data
-router.post("/check", (req, res) => {
-  const checkToken = req.body;
+router.post("/check", async (req, res) => {
+  const checkToken = req.cookies.find_vibe_access_token;
 
   if (!checkToken) {
     return res.status(401).json({ success: false, error: "Not exist Token." });
@@ -93,29 +55,20 @@ router.post("/check", (req, res) => {
 
   try {
     // 검증 - 실패 시 에러 발생
-    jwt.verify(checkToken, accessTokenKey);
+    authContext.checkAccessToken(checkToken);
 
     return res.status(200).json({ success: true });
-  } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return res
-        .status(401)
-        .json({ success: false, error: "Token is Expired" });
-    }
-
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ success: false, error: "Invalid token" });
-    }
-
+  } 
+  catch (error) {
     return res
-      .status(500)
-      .json({ success: false, error: "server error:" + error.message });
+      .status(401)
+      .json({ success: false, error : error.message });
   }
 });
 
 // access 토큰 재발행
 router.post("/refresh", (req, res) => {
-  const checkToken = req.cookies.find_vibe_refresh_token;
+  const checkToken = req.session.refreshToken;
 
   if (!checkToken) {
     return res
@@ -124,50 +77,20 @@ router.post("/refresh", (req, res) => {
   }
 
   try {
-    // 검증 - 실패 시 에러 발생
-    const user_data = jwt.verify(checkToken, refreshTokenKey);
+    const token_list = authContext.refreshAccessToken(checkToken);
 
-    const accessToken = jwt.sign(
-      {
-        email: user_data.email,
-        nickname: user_data.nickname,
-        is_admin: user_data.is_admin,
-      },
-      accessTokenKey,
-      { expiresIn: "10m", issuer: "FindVibe" }
-    );
-
-    const refreashToken = jwt.sign(
-      {
-        user_id: user_data.user_id,
-        is_admin: user_data.is_admin,
-      },
-      refreshTokenKey,
-      { expiresIn: "2h", issuer: "FindVibe" }
-    );
-
-    res.cookie("find_vibe_refresh_token", refreashToken, {
+    res.cookie("find_vibe_access_token", token_list[0], {
       httpOnly: true,
       secure: false,
     });
-
-    return res
-      .status(200)
-      .json({ success: true, token: accessToken, error: "" });
+    
+    return res.status(200).json({ success: true });
+  
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return res
-        .status(401)
-        .json({ success: false, error: "Token is Expired" });
-    }
-
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ success: false, error: "Invalid token" });
-    }
-
+    
     return res
-      .status(500)
-      .json({ success: false, error: "server error:" + error.message });
+      .status(401)
+      .json({ success: false, error: error.message });
   }
 });
 

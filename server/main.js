@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
+const session = require('express-session');
+
 dotenv.config();
 
 const route = require("./src/route/route");
@@ -18,6 +20,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // setting
 app.use(cors());
+
+// session cookie
+  app.use(
+    session({
+      secret: process.env.REFRESH_TOKEN_KEY,
+      resave: false,
+      saveUninitialized: false,
+      store: new session.MemoryStore(),
+      cookie: {
+        secure: false,
+        maxAge: 24 * 60 * 60 * 1000, // 1일
+      },
+    })
+  );
 
 // build 파일 접근
 app.use(express.static(`${__dirname}/../client/build`));
