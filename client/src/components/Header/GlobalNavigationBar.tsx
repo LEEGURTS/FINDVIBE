@@ -56,7 +56,7 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
     const now_time = new Date().getTime();
     const loginTime = new Date(loginState.loginTime.toString()).getTime();
 
-    if (now_time - loginTime > 10 * 60 * 1000) {
+    if (now_time - loginTime > 60 * 1000 /*1분*/) {
       checkAccessToken(loginState);
     }
   }, [loginState.isLogin]);

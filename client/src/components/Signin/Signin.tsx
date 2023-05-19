@@ -26,9 +26,9 @@ const Signin: React.FunctionComponent = () => {
 
   const Login = () => {
     sendLogInRequest(userData).then((res) => {
-      loginState.setToken(res.access_token);
+      loginState.setEmail(res.email);
       loginState.setIsLogin(true);
-      loginState.setLoginEmail(userData.email);
+      loginState.setNickname(res.nickname);
       loginState.setLoginTime(new Date());
       navigate(from);
     });

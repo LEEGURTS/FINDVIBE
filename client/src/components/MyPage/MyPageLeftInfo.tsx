@@ -17,7 +17,7 @@ const MyPageLeftInfo: React.FunctionComponent<MyPageLeftInfoProps> = ({
         <div className="rounded-full w-[6vw] aspect-square bg-deeporange" />
         <p className="mt-[0.3em] text-[1.7em] font-bold">닉네임</p>
         <p className="text-gray">
-          {userinfo.last_login_email || "rmstjd333@gmail.com"}
+          {userinfo.email || "rmstjd333@gmail.com"}
         </p>
       </div>
       <div className="w-full flex flex-col items-start justify-center p-12">

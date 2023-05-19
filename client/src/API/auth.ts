@@ -13,8 +13,8 @@ export const sendLogOutRequest = () => {
   return sendPostRequest("/auth/logout", null);
 };
 
-export const sendCheckRequest = (token: string) => {
-  return sendPostRequest("/auth/check", token);
+export const sendCheckRequest = () => {
+  return sendPostRequest("/auth/check", null);
 };
 
 export const sendRefreshRequest = () => {

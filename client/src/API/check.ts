@@ -10,10 +10,10 @@ export const checkAccessToken = (loginState: LoginStore) => {
   console.log(
     loginState.isLogin,
     loginState.loginTime,
-    loginState.token,
-    loginState.last_login_email
+    loginState.email,
+    loginState.nickname
   );
-  sendCheckRequest(loginState.token)
+  sendCheckRequest()
     .then(() => loginState.setIsLogin(true))
     .catch((err) => {
       if (err.response.status === 401) {
@@ -26,7 +26,6 @@ export const refreshAccessToken = (loginState: LoginStore) => {
   sendRefreshRequest()
     .then((res) => {
       loginState.setLoginTime(res.login_time);
-      loginState.setToken(res.token);
     })
     .catch(() => {
       sendLogOutRequest().then(() => loginState.setInitialize());
