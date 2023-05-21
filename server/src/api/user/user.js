@@ -51,6 +51,7 @@ router.post("/update/nickname", async (req, res) => {
   }
 
   try {
+    // token에 저장된 email -> user select
     const user_data = await authContext.checkAccessToken(token);
 
     const new_nickname = req.body.nickname;
@@ -66,18 +67,23 @@ router.post("/update/nickname", async (req, res) => {
 
 router.post("/update/password", async (req, res) => {
   try {
-    const { email, password, nickname } = req.body;
+    // token에 저장된 email -> user select
+    const {email, password} = req.body;
 
-    const convert_key = await userContext.createRandomString();
+    const user_data = await authContext.getUserDataByEmail(email);
 
-    const convert_password = await userContext.convertPassword(password, convert_key);
+    const convert_password = await userContext.convertPassword(password, user_data.convert_key);
 
-    await userContext.createUserInfo(email, convert_password, nickname, convert_key);
+    if(user_data.password === convert_password){
+      return res.status(200).json({ success: false, error: "이미 사용한 비밀번호입니다!" });
+    }
+
+    await userContext.updateUserPassword(email, convert_password);
 
     return res.status(200).json({ success: true, error: "" });
   } catch(err) {
     console.error(err);
-    return res.status(500).json({ success: false, error: "server error" });
+    return res.status(500).json({ success: false, error: "server error:"+err });
   }
 });
 

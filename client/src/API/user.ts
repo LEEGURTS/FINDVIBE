@@ -29,3 +29,11 @@ export const sendUpdateNicknameRequest = (nickname: string) => {
   };
   return sendPostRequest("/user/update/nickname", userData);
 };
+
+export const sendUpdatePasswordRequest = (email: string, password: string) => {
+  const userData = {
+    email: email,
+    password: password
+  };
+  return sendPostRequest("/user/update/password", userData);
+};

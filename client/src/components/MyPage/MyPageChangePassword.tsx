@@ -1,6 +1,10 @@
 import { useRef } from "react";
+import { sendUpdatePasswordRequest } from "../../API/user";
+import { useLogin } from '../../State/userInfo';
 
 const MyPageChangePassword: React.FunctionComponent = () => {
+  const userInfo = useLogin();
+
   const password = useRef<{ password: string; checkPassword: string }>({
     password: "",
     checkPassword: "",
@@ -24,9 +28,17 @@ const MyPageChangePassword: React.FunctionComponent = () => {
 
   const handleSubmit = () => {
     if (checkPassword()) {
-      // 비밀번호 변경 요청
+      sendUpdatePasswordRequest(userInfo.email, password.current.password)
+      .then((res)=>{
+        if(!res.success){
+          alert("이미 사용한 비밀번호입니다!");
+          return;
+        }
+        alert("비밀번호 변경 성공!");
+      });
     }
   };
+
   return (
     <main className="col-span-8 h-[calc(100svh-64px)] flex flex-col p-4 justify-center">
       <div className="my-[2em]">

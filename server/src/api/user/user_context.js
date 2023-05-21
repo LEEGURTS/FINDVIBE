@@ -31,8 +31,24 @@ function updateUserNickname(email, nickname) {
     },{
       where : {
         email : email
-    }}).then((user_info)=>{
-      console.log("new_user:"+user_info.nickname);
+    }}).then(()=>{
+      resolve(true);
+    }).catch((err) => {
+      console.error(err);
+      reject(err);
+      return;
+    });
+  });
+}
+
+function updateUserPassword(email, password) {
+  return new Promise((resolve, reject) => {
+    UserInfo.update({
+      password: password,
+    },{
+      where : {
+        email : email
+    }}).then(()=>{
       resolve(true);
     }).catch((err) => {
       console.error(err);
@@ -87,6 +103,7 @@ module.exports = {
   createUserInfo: createUserInfo,
   getUserDataByNickname: getUserDataByNickname,
   updateUserNickname: updateUserNickname,
+  updateUserPassword: updateUserPassword,
   createRandomString: createRandomString,
   convertPassword: convertPassword,
 };
