@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const UserInfo = require("../../connect/models/user_info");
 // our_val
 
-// DB -------------------------------------------------------
+// DB create-------------------------------------------------------
 function createUserInfo(email, password, nickname, convert_key) {
   return new Promise((resolve, reject) => {
     UserInfo.create({
@@ -15,6 +15,41 @@ function createUserInfo(email, password, nickname, convert_key) {
     }).then((user_info)=>{
       console.log("new_user:"+user_info.nickname);
       resolve(true);
+    }).catch((err) => {
+      console.error(err);
+      reject(err);
+      return;
+    });
+  });
+}
+
+// DB update --------------------------------------------------
+function updateUserNickname(email, nickname) {
+  return new Promise((resolve, reject) => {
+    UserInfo.update({
+      nickname: nickname,
+    },{
+      where : {
+        email : email
+    }}).then((user_info)=>{
+      console.log("new_user:"+user_info.nickname);
+      resolve(true);
+    }).catch((err) => {
+      console.error(err);
+      reject(err);
+      return;
+    });
+  });
+}
+
+// DB select --------------------------------------------------
+function getUserDataByNickname(nickname) {
+  return new Promise((resolve, reject) => {
+    UserInfo.findOne({
+      raw: true,
+      where : {nickname : nickname}
+    }).then((user_data)=>{
+      resolve(user_data);
     }).catch((err) => {
       console.error(err);
       reject(err);
@@ -50,6 +85,8 @@ function convertPassword(password, convert_key) {
 
 module.exports = {
   createUserInfo: createUserInfo,
+  getUserDataByNickname: getUserDataByNickname,
+  updateUserNickname: updateUserNickname,
   createRandomString: createRandomString,
   convertPassword: convertPassword,
 };

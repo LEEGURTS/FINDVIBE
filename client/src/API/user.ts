@@ -14,3 +14,18 @@ export const sendSignUpRequest = (userInfo: SignUpUserInfo) => {
   };
   return sendPostRequest("/user/signup", userData);
 };
+
+export const sendCheckDuplicateNicknameRequest = (nickname: string) => {
+  const userData = {
+    nickname: nickname
+  };
+  return sendPostRequest("/user/check/nickname", userData);
+};
+
+
+export const sendUpdateNicknameRequest = (nickname: string) => {
+  const userData = {
+    nickname: nickname
+  };
+  return sendPostRequest("/user/update/nickname", userData);
+};

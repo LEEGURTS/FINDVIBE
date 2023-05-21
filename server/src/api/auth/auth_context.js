@@ -36,6 +36,7 @@ function createTokens(user_data){
     // API 접근 권한 확인에 사용 - 만료기간 10분
   const accessToken = jwt.sign(
     {
+      email: user_data.email,
       is_admin: user_data.is_admin,
     },
     accessTokenKey,
@@ -46,6 +47,7 @@ function createTokens(user_data){
   const refreshToken = jwt.sign(
     {
       user_id: user_data.user_id,
+      email: user_data.email,
       is_admin: user_data.is_admin,
     },
     refreshTokenKey,
@@ -57,7 +59,7 @@ function createTokens(user_data){
 
 function checkAccessToken(token){
   try {
-    jwt.verify(token, accessTokenKey);
+    return jwt.verify(token, accessTokenKey);
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
      throw new Error("Token is Expired");
