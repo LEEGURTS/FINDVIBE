@@ -6,12 +6,8 @@ import { useState } from "react";
 import { throttle } from "lodash";
 import { sendLogOutRequest } from "../../API/auth";
 import { useLogin } from "../../State/userInfo";
-<<<<<<< HEAD
 import { checkToken } from "../../API/check";
-=======
-import { checkAccessToken } from "../../API/check";
 import { useIsRN } from "../../State/isNative";
->>>>>>> f79e99b ([FE DEV] 적응형 수정)
 
 const GlobalNavigationBar: React.FunctionComponent = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
