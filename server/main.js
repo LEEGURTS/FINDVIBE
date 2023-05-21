@@ -21,10 +21,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // setting
 app.use(cors());
 
-// session cookie
+// session
   app.use(
     session({
-      secret: process.env.REFRESH_TOKEN_KEY,
+      secret: process.env.SESSION_KEY,
       resave: false,
       saveUninitialized: false,
       store: new session.MemoryStore(),

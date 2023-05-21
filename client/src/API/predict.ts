@@ -5,6 +5,6 @@ export interface Coordinate {
   lng: number;
 }
 
-export const sendPredictRequest = async (imageFiles: File[], nickname: string) => {
-  return await sendMultipartRequest("/predict", nickname, imageFiles);
+export const sendPredictRequest = async (imageFiles: File[]) => {
+  return await sendMultipartRequest("/predict", imageFiles);
 };

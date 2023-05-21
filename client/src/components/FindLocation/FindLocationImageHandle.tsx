@@ -31,12 +31,12 @@ const FindLocationImageHandle: React.FunctionComponent = () => {
 
     if (uploadedIndex === undefined) {
       console.log("first:" + imageList.length);
-      sendPredictRequest(imageList, loginState.nickname).then((res) => {
+      sendPredictRequest(imageList).then((res) => {
         setUploadedIndex(imageList.length - 1);
         setAnalyzeResultList([...analyzeResultList, res.coordinate]);
       });
     } else {
-      sendPredictRequest(imageList.slice(uploadedIndex + 1), loginState.nickname).then((res) => {
+      sendPredictRequest(imageList.slice(uploadedIndex + 1)).then((res) => {
         setUploadedIndex(imageList.length - 1);
         setAnalyzeResultList([...analyzeResultList, res.coordinate]);
       });

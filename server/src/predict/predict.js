@@ -2,16 +2,17 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const predictContext = require("./predict_context");
 
-const UserInfo = require("../../connect/models/user_info");
+const UserInfo = require("../connect/models/user_info");
 const dotenv = require("dotenv");
 const axios = require('axios');
 
 dotenv.config();
 
-const accessTokenKey = process.env.ACCESS_TOKEN_KEY;
+const tokenKey = process.env.TOKEN_KEY;
 
 const router = express.Router();
 const multer = require("multer");
+const sessionAuth = require("../api/sessionAuth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -27,30 +28,10 @@ const upload = multer({ storage: storage });
 
 // 데이터 받아서 저장 + python 서버에 전송 -----------------------------------------------------
 
-router.post("/", upload.array("image"), async (req, res) => {
-  // 유효성 확인 - 사용자 정보 받아오기
-  const checkToken = req.cookies.find_vibe_access_token;
-
-  if (!checkToken) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Not exist Token." });
-  }
-
+router.post("/", upload.array("image"), sessionAuth, async (req, res) => {
   try {
     // 검증 - 실패 시 에러 발생
-    jwt.verify(checkToken, accessTokenKey);
-
-    const nickname = req.body.nickname;
-
-    const user_info = await UserInfo.findOne({
-      raw: true,
-      where: { nickname : nickname },
-    }).catch((err) => {
-      console.error(err);
-      res.status(500).json({ success: false, error: "db connect fail!" });
-      return;
-    });
+    const user_info = req.user_info;
 
     const user_id = user_info.user_id;
 

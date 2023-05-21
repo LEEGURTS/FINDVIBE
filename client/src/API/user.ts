@@ -22,18 +22,27 @@ export const sendCheckDuplicateNicknameRequest = (nickname: string) => {
   return sendPostRequest("/user/check/nickname", userData);
 };
 
-
-export const sendUpdateNicknameRequest = (nickname: string) => {
+export const sendUpdateNicknameRequest = (new_nickname: string) => {
   const userData = {
-    nickname: nickname
+    nickname: new_nickname
   };
   return sendPostRequest("/user/update/nickname", userData);
 };
 
-export const sendUpdatePasswordRequest = (email: string, password: string) => {
+export const sendUpdatePasswordRequest = (new_password: string) => {
   const userData = {
-    email: email,
-    password: password
+    password: new_password
   };
   return sendPostRequest("/user/update/password", userData);
+};
+
+export const sendGetUserPredictLogRequest = (time: Date) => {
+  const userData = {
+    time: time
+  };
+  return sendPostRequest("/user/get/log", userData);
+};
+
+export const sendGetUserAllPredictLogRequest = () => {
+  return sendPostRequest("/user/get-all/log", null);
 };

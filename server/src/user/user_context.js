@@ -1,7 +1,7 @@
 // modules
 const crypto = require("crypto");
 // our_modules
-const UserInfo = require("../../connect/models/user_info");
+const UserInfo = require("../connect/models/user_info");
 // our_val
 
 // DB create-------------------------------------------------------

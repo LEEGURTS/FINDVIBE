@@ -28,7 +28,7 @@ const MyPageChangePassword: React.FunctionComponent = () => {
 
   const handleSubmit = () => {
     if (checkPassword()) {
-      sendUpdatePasswordRequest(userInfo.email, password.current.password)
+      sendUpdatePasswordRequest(password.current.password)
       .then((res)=>{
         if(!res.success){
           alert("이미 사용한 비밀번호입니다!");

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { throttle } from "lodash";
 import { sendLogOutRequest } from "../../API/auth";
 import { useLogin } from "../../State/userInfo";
-import { checkAccessToken } from "../../API/check";
+import { checkToken } from "../../API/check";
 
 const GlobalNavigationBar: React.FunctionComponent = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -57,7 +57,7 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
     const loginTime = new Date(loginState.loginTime.toString()).getTime();
 
     if (now_time - loginTime > 60 * 60 * 1000 /*1시간*/) {
-      checkAccessToken(loginState);
+      checkToken(loginState);
     }
   }, [loginState.isLogin]);
 
