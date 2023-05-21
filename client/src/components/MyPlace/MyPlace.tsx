@@ -8,7 +8,8 @@ import axios from "axios";
 import GoogleMapApi from "../GoogleMap/GoogleMapApi";
 
 const MyPlace: React.FunctionComponent = () => {
-  const [date, setDate] = useState<Value>(new Date("2023-04-18"));
+  const [date, setDate] = useState<Value>(new Date());
+
   const marks = {
     "2023-04-17": [
       [
@@ -29,7 +30,6 @@ const MyPlace: React.FunctionComponent = () => {
       ],
     ],
   };
-
   const getAddressFromLatLng = async (latlng: { lat: number; lng: number }) => {
     try {
       const address = await axios.get(
@@ -44,7 +44,7 @@ const MyPlace: React.FunctionComponent = () => {
   return (
     <main className="relative w-full top-[64px] min-h-[calc(100vh-64px)]">
       <GridLayout>
-        <div className="col-start-1 col-end-7 mt-4 flex items-center justify-center">
+        <div className="col-start-1 col-end-7 tablet:col-start-2 tablet:col-end-7 mt-4 flex items-center justify-center">
           <Calendar
             onChange={(e) => setDate(e)}
             value={date}
@@ -73,17 +73,24 @@ const MyPlace: React.FunctionComponent = () => {
             }}
           />
         </div>
-        <div className="col-start-1 col-end-7 tablet:col-start-7 mt-4 p-4 border tablet:col-end-13 bg-white ">
-          <p className="font-pretendardBold text-deeporange">
-            {moment(date as Date).format("YYYY년 MM월 DD일")}
-            {(marks as any)[moment(date as Date).format("YYYY-MM-DD")].map(
-              (item: any) =>
-                item.map((pos: any) => <div>{`${pos.lat} , ${pos.lng}`}</div>)
+        <div className="col-start-1 col-end-7 tablet:col-start-7 mt-4 p-4 border border-gray border-opacity-60 tablet:col-end-12 bg-white drop-shadow-lg rounded-[15px]">
+          <div className="font-pretendardBold text-deeporange">
+            <p>서울특별시 노원구 광운로 20</p>
+            {Object.keys(marks).find(
+              (time) => time === moment(date as Date).format("YYYY-MM-DD")
+            ) && (
+              <img
+                alt=""
+                src="https://picsum.photos/300/300"
+                className="object-fit"
+              ></img>
             )}
-          </p>
+          </div>
         </div>
         <GoogleMapApi
-          coordinate={(marks as any)[moment(date as Date).format("YYYY-MM-DD")]}
+          coordinate={
+            (marks as any)[moment(date as Date).format("YYYY-MM-DD")] ?? []
+          }
         />
       </GridLayout>
     </main>

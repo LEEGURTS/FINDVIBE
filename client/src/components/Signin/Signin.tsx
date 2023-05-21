@@ -18,7 +18,7 @@ const Signin: React.FunctionComponent = () => {
   const from = location?.state?.redirectedFrom?.pathname || "/findvibe";
 
   useLayoutEffect(() => {
-    if (!loginState.isLogin) {
+    if (loginState.isLogin) {
       navigate("/home");
       return;
     }
@@ -35,14 +35,9 @@ const Signin: React.FunctionComponent = () => {
   };
 
   return (
-    <main className="relative w-full h-full h-[calc(100svh - 64px)]">
+    <main className="w-full h-[calc(100vh-64px)] flex items-center justify-center">
       <GridLayout>
-        <div
-          className="col-span-6 tablet:col-start-3 tablet:col-end-11 desktop:col-start-5 desktop:col-end-9 flex flex-col items-center justify-center"
-          style={{
-            height: "calc(100svh - 64px)",
-          }}
-        >
+        <div className="col-span-6 tablet:col-start-3 tablet:col-end-11 desktop:col-start-5 desktop:col-end-9 flex flex-col items-center justify-center">
           <img className="w-[3em] mb-[1em]" src={cursor} alt="" />
           <div className="text-[#FF7B54] font-pretendardBold text-[2em]">
             로그인

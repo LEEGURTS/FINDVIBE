@@ -24,7 +24,7 @@ const MyPageMyRecord: React.FunctionComponent = () => {
     },
   ];
   return (
-    <main className="col-span-8 h-[calc(100svh-64px)] overflow-y-scroll scrollbar-hide flex-col p-4 justify-center grid grid-cols-4 gap-4">
+    <main className="col-span-6 tablet:col-span-8 h-[calc(100svh-64px)] overflow-y-scroll scrollbar-hide flex-col p-4 justify-center grid grid-cols-3 tablet:grid-cols-4 gap-4">
       {tempData.map((data, index) => (
         <MyPageMyRecordItem
           key={index}

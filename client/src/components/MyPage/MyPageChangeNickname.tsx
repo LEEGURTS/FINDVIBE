@@ -45,7 +45,7 @@ const MyPageChangeNickname: React.FunctionComponent = () => {
   },[newNickname]);
 
   return (
-    <main className="col-span-8 h-[calc(100svh-64px)] flex flex-col p-4 justify-center">
+    <main className="col-span-6 tablet:col-span-8 tablet:h-[calc(100svh-64px)] flex flex-col p-4 justify-center">
       <div className="p-8 border-2 rounded-[0.8em] bg-white border-deeporange drop-shadow-md">
         <label className="text-[1.5em] font-bold">현재 닉네임</label>
         <p className="text-[2em]">{userInfo.nickname}</p>

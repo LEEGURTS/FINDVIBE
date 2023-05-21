@@ -9,7 +9,7 @@ import {
 import { useState, useEffect } from "react";
 import cursor from "../../assets/Svg/Cursor.svg";
 import camera from "../../assets/Svg/Camera.svg";
-import isIos from "./../DetectDevice/isIos";
+import { isIos } from "../DetectDevice/DetectDevice";
 
 interface GoogleMapApiProps {
   coordinate: { lat: number; lng: number }[][];
@@ -112,7 +112,8 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
     setTimeout(() => {
       setSelectedLocationId(null);
       setSelectedLocationIndex(newMarkerList.length - 1);
-    }, 300);
+    }, 0);
+    console.log("RERENDER");
   }, [map, coordinate]);
 
   const { isLoaded } = useLoadScript({
@@ -135,7 +136,7 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
   }
   return (
     <>
-      <div className=" col-span-6 tablet:col-start-2 tablet:col-span-1 flex flex-row tablet:flex-col items-center justify-center">
+      <div className=" col-span-6 tablet:col-start-1 tablet:col-span-1 flex flex-row tablet:flex-col items-center justify-center">
         {coordinate.map((_, idx) => {
           return (
             <button
@@ -151,7 +152,7 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
           );
         })}
       </div>
-      <div className=" border border-shalloworange p-2 col-span-6 tablet:col-start-3 tablet:col-end-12">
+      <div className=" border border-shalloworange p-2 col-span-6 tablet:col-start-2 tablet:col-end-12">
         <GoogleMap
           onLoad={(map) => {
             setMap(map);

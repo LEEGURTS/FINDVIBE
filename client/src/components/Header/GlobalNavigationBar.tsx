@@ -6,13 +6,18 @@ import { useState } from "react";
 import { throttle } from "lodash";
 import { sendLogOutRequest } from "../../API/auth";
 import { useLogin } from "../../State/userInfo";
+<<<<<<< HEAD
 import { checkToken } from "../../API/check";
+=======
+import { checkAccessToken } from "../../API/check";
+import { useIsRN } from "../../State/isNative";
+>>>>>>> f79e99b ([FE DEV] 적응형 수정)
 
 const GlobalNavigationBar: React.FunctionComponent = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const navigate = useNavigate();
-
+  const { isNative } = useIsRN();
   const loginState = useLogin();
 
   useEffect(() => {
@@ -89,7 +94,9 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
       );
     }
   };
-
+  if (isNative) {
+    return <></>;
+  }
   return (
     <nav
       className="fixed z-50 w-full h-[64px] bg-white flex items-center justify-center text-[0.875em] whitespace-pre origin-top duration-400"

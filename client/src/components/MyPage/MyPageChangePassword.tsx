@@ -40,7 +40,7 @@ const MyPageChangePassword: React.FunctionComponent = () => {
   };
 
   return (
-    <main className="col-span-8 h-[calc(100svh-64px)] flex flex-col p-4 justify-center">
+    <main className="col-span-6 tablet:col-span-8 tablet:h-[calc(100svh-64px)] flex flex-col p-4 justify-center">
       <div className="my-[2em]">
         <label className="text-[1.5em] font-bold">
           변경하실 비밀번호를 입력해주세요.
