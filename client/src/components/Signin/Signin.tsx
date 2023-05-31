@@ -19,7 +19,7 @@ const Signin: React.FunctionComponent = () => {
 
   useLayoutEffect(() => {
     if (loginState.isLogin) {
-      navigate("/home");
+      navigate("/findvibe");
       return;
     }
   }, [loginState.isLogin]);

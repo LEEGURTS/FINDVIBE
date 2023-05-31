@@ -44,7 +44,7 @@ async function processImagePathList(user_id, imagePathList){
       const request_log_list = await Promise.all(
         imagePathList.map(async (imagePath) => {
           const log_id = await saveRequestLog(user_id, imagePath);
-          return { log_id: log_id, user_id: user_id, image_path: imagePath };
+          return { log_id: log_id, image_path: imagePath };
         })
       );
 
@@ -52,6 +52,27 @@ async function processImagePathList(user_id, imagePathList){
     } catch(error){
       throw new Error(error);
     }
+}
+
+async function processPredictList(user_id, predictResultList){
+  try{
+    const response_log_list = await Promise.all(
+      predictResultList.map(async(predictResult) => {
+        const req_log_id = predictResult.log_id;
+        const result = await Promise.all(
+          predictResult.predictions.map(async (predict)=>{
+            const res_log_id = await saveResponseLog(user_id, req_log_id, predict);
+            return { log_id: res_log_id, result: predict };
+          })
+        );
+        return result;
+      })
+    );
+
+    return response_log_list;
+  } catch(error){
+    throw new Error(error);
+  }
 }
 
 function getUserPredictLog(user_id, req_time){
@@ -66,4 +87,5 @@ module.exports = {
   saveRequestLog : saveRequestLog,
   saveResponseLog : saveResponseLog,
   processImagePathList : processImagePathList,
+  processPredictList : processPredictList,
 };

@@ -41,24 +41,28 @@ router.post("/", upload.array("image"), sessionAuth, async (req, res) => {
 
     const request_log_list = await predictContext.processImagePathList(user_id, imagePathList);
 
+    console.log("req_log:",request_log_list);
     // TODO: python 서버로 요청 전송
     const url = 'http://localhost:5002/predict';
 
-    axios.post(url, request_log_list)
-      .then(async(response) => {
-        // data는 json으로 옴
-        console.log(response.data);
-        // json = [결과1, 결과2.....]
-        // 결과 = {log_id, user_id, 결과}
-        // await predictContext.saveResponseLog(결과 데이터 채우기);
-      })
-      .catch(error => {
-        // 에러 처리
-        console.error(error);
-      });
+    const response = await axios.post(url, request_log_list);
 
-    // 요청 결과가 오면 결과를 DB에 저장 밑 반환 success와 coordinate 전송하기
-    return res.status(200).json({ success: true });
+    const result = Object.entries(response.data.result).map(([log_id, predictions]) => {
+      // 원하는 방식으로 데이터 처리 및 저장하기
+      return {
+        log_id,
+        predictions
+      };
+    });
+
+    console.log(result)
+
+    const response_log_list = await predictContext.processPredictList(user_id, result)
+
+    console.log(response_log_list);
+    // result : {log_id:num, predict:pre_info[]}의 list
+    // pre_info : {angle:float, 위도:float, 경도:float}의 list
+    return res.status(200).json({ success: true, result:result });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return res
