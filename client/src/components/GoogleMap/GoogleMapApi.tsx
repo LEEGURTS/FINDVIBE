@@ -5,6 +5,7 @@ import {
   MarkerF,
   InfoWindowF,
   MarkerClustererF,
+  StreetViewPanorama,
 } from "@react-google-maps/api";
 import { useState, useEffect } from "react";
 import cursor from "../../assets/Svg/Cursor.svg";
@@ -64,7 +65,7 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
     null
   );
-
+  const [isLoadViewVisible, setIsLoadViewVisible] = useState(false);
   const [map, setMap] = useState<google.maps.Map>();
   const [rotatedMarkers, setRotatedMarkers] = useState<string[][]>([]);
   const koreaUniverSity = {
@@ -145,6 +146,7 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
               onClick={() => {
                 setSelectedLocationId(null);
                 setSelectedLocationIndex(idx);
+                setIsLoadViewVisible(false);
               }}
             >
               {idx + 1}
@@ -174,6 +176,17 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
             height: "50vh",
           }}
         >
+          {coordinate.length > 0 &&
+            coordinate[selectedLocationIndex]?.length && (
+              <StreetViewPanorama
+                options={{
+                  position:
+                    coordinate[selectedLocationIndex][selectedLocationId ?? 0],
+                  visible: isLoadViewVisible,
+                }}
+                onCloseclick={() => setIsLoadViewVisible(false)}
+              />
+            )}
           <div className="invisible">
             <MarkerF
               position={{ lat: 0, lng: 0 }}
@@ -206,17 +219,11 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
                             : rotatedMarkers[selectedLocationIndex][idx] ??
                               cursor,
                         }}
-                        onClick={() => setSelectedLocationId(idx)}
-                      >
-                        {selectedLocationId === idx ? (
-                          <InfoWindowF
-                            position={location}
-                            onCloseClick={() => setSelectedLocationId(null)}
-                          >
-                            <div>{`${idx + 1}번째 설명`}</div>
-                          </InfoWindowF>
-                        ) : null}
-                      </MarkerF>
+                        onClick={() => {
+                          setSelectedLocationId(idx);
+                          setIsLoadViewVisible(true);
+                        }}
+                      ></MarkerF>
                     );
                   })}
                 </>

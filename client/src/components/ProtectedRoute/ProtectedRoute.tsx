@@ -4,7 +4,6 @@ import { useLogin } from "../../State/userInfo";
 const ProtectedRoute: React.FunctionComponent = () => {
   const { isLogin } = useLogin();
   const currentLocation = useLocation();
-
   return isLogin ? (
     <Outlet />
   ) : (
