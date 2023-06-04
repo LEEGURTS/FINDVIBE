@@ -1,9 +1,6 @@
-# base image
-FROM python:latest AS build
+FROM python:latest As Server
 
-# model 빌드하기
-
-WORKDIR /app/FindVibe/predict
+WORKDIR /app/findvibe/predict
 
 COPY predict/requirements.txt ./
 
