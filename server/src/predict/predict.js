@@ -79,4 +79,18 @@ router.post("/", upload.array("image"), sessionAuth, async (req, res) => {
   }
 });
 
+router.post("/log", sessionAuth, async (req,res)=>{
+  const user_info = req.user_info;
+  const user_id = user_info.user_id;
+  const req_time = req.body.req_time;
+
+  try{
+    const result = await predictContext.getUserPredictLog(user_id, req_time);
+    return res.status(200).json({success : true, result: result});
+  } catch(err){
+    console.log(err)
+    return res.status(401).json({success : false, result: {}});
+  }
+});
+
 module.exports = router;

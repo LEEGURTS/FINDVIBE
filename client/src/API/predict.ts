@@ -1,4 +1,4 @@
-import { sendMultipartRequest } from "./api";
+import { sendMultipartRequest, sendPostRequest } from "./api";
 
 export interface Coordinate {
   lat: number;
@@ -7,4 +7,11 @@ export interface Coordinate {
 
 export const sendPredictRequest = async (imageFiles: File[]) => {
   return await sendMultipartRequest("/predict", imageFiles);
+};
+
+export const sendGetLogRequest = (selectDay: Date|undefined) => {
+  const userData = {
+    req_time : selectDay
+  };
+  return sendPostRequest("/predict/log", userData);
 };

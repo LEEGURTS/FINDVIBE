@@ -1,14 +1,16 @@
 import Calendar from "react-calendar";
 import GridLayout from "../Layout/GridLayout";
 import "./Calender.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Value } from "react-calendar/dist/cjs/shared/types";
 import moment from "moment";
 import axios from "axios";
 import GoogleMapApi from "../GoogleMap/GoogleMapApi";
+import { sendGetLogRequest } from '../../API/predict';
 
 const MyPlace: React.FunctionComponent = () => {
-  const [date, setDate] = useState<Value>(new Date());
+  const [date, setDate] = useState(new Date());
+
 
   const marks = {
     "2023-04-17": [
@@ -41,12 +43,41 @@ const MyPlace: React.FunctionComponent = () => {
     }
   };
 
+  const handleDateChange = (date:any) => {
+    const selectedDate = new Date(date); // Value 형식을 Date 객체로 변환
+    setDate(selectedDate);
+  };
+
+  const GetPredictLog = (select_day:any) => {
+    if (!select_day){
+      return;
+    }
+
+    console.log("req:",select_day);
+
+    const select_day_convert = new Date(select_day);
+
+    sendGetLogRequest(select_day_convert)
+    .then((res)=>{
+      console.log(res);
+    })
+    .catch((err)=>{
+      console.log(err);
+      return;
+    });
+  }
+
+  useEffect(()=>{
+    console.log(date);
+    GetPredictLog(date);
+  },[date]);
+
   return (
     <main className="relative w-full top-[64px] min-h-[calc(100vh-64px)]">
       <GridLayout>
         <div className="col-start-1 col-end-7 tablet:col-start-2 tablet:col-end-7 mt-4 flex items-center justify-center">
           <Calendar
-            onChange={(e) => setDate(e)}
+            onChange={handleDateChange}
             value={date}
             formatDay={(_, date) => moment(date).format("DD")}
             tileDisabled={({ date }) => {

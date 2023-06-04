@@ -1,6 +1,10 @@
+import { sendGetLogRequest } from "../../../API/predict";
 import MyPageMyRecordItem from "./MyPageMyRecordItem";
+import { useState, useEffect } from 'react';
 
 const MyPageMyRecord: React.FunctionComponent = () => {
+  const [Record, setRecord] = useState([]);
+
   const tempData = [
     {
       img: "https://picsum.photos/300/300",
@@ -23,6 +27,23 @@ const MyPageMyRecord: React.FunctionComponent = () => {
       date: "2023-03-03",
     },
   ];
+
+  const GetUserPredictLog = () => {
+    sendGetLogRequest(undefined)
+    .then((res)=>{
+      console.log(res);
+      setRecord(res);
+    })
+    .catch((err)=>{
+      console.log(err);
+      return;
+    });
+  }
+
+  useEffect(()=>{
+    GetUserPredictLog();
+  },[]);
+
   return (
     <main className="col-span-6 tablet:col-span-8 h-[calc(100svh-64px)] overflow-y-scroll scrollbar-hide flex-col p-4 justify-center grid grid-cols-3 tablet:grid-cols-4 gap-4">
       {tempData.map((data, index) => (
