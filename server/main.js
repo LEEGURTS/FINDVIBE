@@ -1,17 +1,16 @@
 const express = require("express");
-var cors = require("cors");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 dotenv.config();
-
 const route = require("./src/route/route");
 
-const port = process.env.PORT || 5000;
-
+const port = process.env.PORT;
 const app = express();
 
 app.use(cookieParser());
@@ -27,7 +26,7 @@ app.use(cors());
       secret: process.env.SESSION_KEY,
       resave: false,
       saveUninitialized: false,
-      store: new session.MemoryStore(),
+      store: MongoStore.create({mongoUrl:`mongodb://localhost:27017/findvibe_session_db`}),
       cookie: {
         secure: false,
         maxAge: 24 * 60 * 60 * 1000, // 1일

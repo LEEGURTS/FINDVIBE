@@ -56,20 +56,17 @@ async function processImagePathList(user_id, imagePathList){
 
 async function processPredictList(user_id, predictResultList){
   try{
-    const response_log_list = await Promise.all(
+    await Promise.all(
       predictResultList.map(async(predictResult) => {
         const req_log_id = predictResult.log_id;
-        const result = await Promise.all(
+        await Promise.all(
           predictResult.predictions.map(async (predict)=>{
-            const res_log_id = await saveResponseLog(user_id, req_log_id, predict);
-            return { log_id: res_log_id, result: predict };
+            await saveResponseLog(user_id, req_log_id, predict);
           })
         );
-        return result;
       })
     );
-
-    return response_log_list;
+    return true;
   } catch(error){
     throw new Error(error);
   }
