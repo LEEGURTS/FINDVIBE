@@ -14,7 +14,7 @@ import tensorflow_hub as hub
 from six.moves.urllib.request import urlopen
 import scipy.io
 from time import time
-from utils import getImage_and_resize, load_saved_delf_data
+from model.utils import getImage_and_resize, load_saved_delf_data
 
 delf = hub.load('https://tfhub.dev/google/delf/1').signatures['default']
 
@@ -40,17 +40,17 @@ def match_images(result1, result2, gps, label, image1=None, image2=None):
   inliers_num=0
   # Read features.
   num_features_1 = result1['locations'].shape[0]
-  # print("Loaded image 1's %d features" % num_features_1)
+  print("Loaded image 1's %d features" % num_features_1)
   
   num_features_2 = result2['locations'].shape[0]
-  # print("Loaded image 2's %d features" % num_features_2)
+  print("Loaded image 2's %d features" % num_features_2)
 
   # Find nearest-neighbor matches using a KD tree. # 여기서 시간 줄일 수 있으려나
   d1_tree = cKDTree(result1['descriptors'])
   _, indices = d1_tree.query(
       result2['descriptors'],
       distance_upper_bound=distance_threshold)
-  # print(indices)
+  print(indices)
   # Select feature locations for putative matches.
   locations_2_to_use = result2['locations'].numpy()[np.where(indices != num_features_1)]     
   
@@ -79,10 +79,10 @@ def match_images(result1, result2, gps, label, image1=None, image2=None):
         max_trials=100,
         stop_probability=0.99)
     end=time()
-    # print(end-start)
+    print(end-start)
     inliers_num=sum(inliers)
-    #print(type(inliers))
-    #print(inliers)
+    print(type(inliers))
+    print(inliers)
     print('Found %d inliers' % inliers_num)
     
   except:
@@ -108,9 +108,9 @@ def match_images(result1, result2, gps, label, image1=None, image2=None):
   return [inliers_num, label] + list(gps)
   
 def run_model(url):
-  img_path = tf.keras.utils.get_file(url.split('/')[-1], url)
+  #img_path = tf.keras.utils.get_file(url.split('/')[-1], url)
     
-  input_data_image, input_data_array = getImage_and_resize(img_path)
+  input_data_image, input_data_array = getImage_and_resize(url)
   
   input_data = run_delf(input_data_array)
   

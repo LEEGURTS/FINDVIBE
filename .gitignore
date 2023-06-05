@@ -28,6 +28,9 @@
 # client
 /client/node_modules
 
+# predict
+/predict/model/Dataset
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

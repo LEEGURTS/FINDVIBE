@@ -1,6 +1,13 @@
 from flask import Flask, request, jsonify
+import model.model as Mo
+import model.utils as Ut
 
 app = Flask(__name__)
+
+@app.before_request
+def prepare_model():
+  global data, labels, images
+  data, labels, images = Ut.load_saved_delf_data()
 
 # database 연결
 @app.route('/predict', methods=['POST'])
@@ -11,10 +18,17 @@ def predict_location():
   predict_component = ["latitude", "longitude", "angle"]
   result = {}
 
+  test_src = "https://upload.wikimedia.org/wikipedia/commons/2/28/Bridge_of_Sighs%2C_Oxford.jpg"
+
   for request_log in request_log_list:
     img_loc_list = []
     # request_log : {log_id, img_src}를 통해 분석
-    pr_loc_data_list = [[0, 32, 30, 30],[0, 28, 25, 13]]
+    #pr_loc_data_list = [[0, 37.541, 126.986, 30],[0, 28, 25, 13]]
+    pr_loc_data_list = Mo.run_model(test_src)
+
+    if len(pr_loc_data_list) > 2:
+      pr_loc_data_list = pr_loc_data_list[0:2]
+    
     for pr_loc_data in pr_loc_data_list:
       converted_pr_data = {}
       converted_pr_data[predict_component[0]] = pr_loc_data[1]

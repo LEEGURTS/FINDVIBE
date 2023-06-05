@@ -28,10 +28,10 @@ def save_data():
         cnt+=1
         if key not in florida_idx:
             continue 
-        img = Image.load_img(image_path+i, target_size=(224,224))
+        img = image.load_img(image_path+i, target_size=(224,224))
         # img = Image.open(image_path + i)
         # image = ImageOps.fit(img, (224, 224), Image.ANTIALIAS)
-        img_array = Image.img_to_array(img)
+        img_array = image.img_to_array(img)
         val =img_array
         img_list_np.append(val) # X_train
         keys.append(key) # y_train
