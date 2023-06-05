@@ -108,7 +108,6 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
         </button>
         {screenWidth >= 640 && (
           <div className="ml-[20px] col-start-4 w-[220px] flex items-center justify-between">
-            <button className="invisible tablet:visible">후기</button>
             <button
               className="invisible tablet:visible"
               onClick={() => navigate("/hotplace")}

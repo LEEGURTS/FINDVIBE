@@ -3,61 +3,19 @@ import {
   GoogleMap,
   useLoadScript,
   MarkerF,
-  InfoWindowF,
   MarkerClustererF,
   StreetViewPanorama,
 } from "@react-google-maps/api";
 import { useState, useEffect } from "react";
 import cursor from "../../assets/Svg/Cursor.svg";
 import camera from "../../assets/Svg/Camera.svg";
-import { isIos } from "../DetectDevice/DetectDevice";
+import RotateIcon, { getAngle } from "./RotateIcon";
+import CustomMarker from "./CustomMarker";
 
 interface GoogleMapApiProps {
   coordinate: { lat: number; lng: number }[][];
 }
-class RotateIcon {
-  img: HTMLImageElement;
-  canvas: HTMLCanvasElement;
-  context: CanvasRenderingContext2D | null;
 
-  constructor() {
-    let img = new Image();
-    img.src = cursor;
-
-    this.img = img;
-
-    let canvas = document.createElement("canvas");
-    canvas.width = 45;
-    canvas.height = 45;
-    this.context = canvas.getContext("2d");
-    this.canvas = canvas;
-  }
-}
-
-interface RotateIcon {
-  setRotation(deg: number): RotateIcon;
-  getUrl(): string;
-}
-
-RotateIcon.prototype.setRotation = function (deg: number) {
-  let angle = (deg * Math.PI) / 180,
-    centerX = 45 / 2,
-    centerY = 45 / 2;
-
-  this.context?.clearRect(0, 0, 45, 45);
-  this.context?.save();
-  this.context?.translate(centerX, centerY);
-  this.context?.rotate(angle);
-  this.context?.translate(-centerX, -centerY);
-  this.context?.drawImage(this.img, 0, 0);
-  this.context?.restore();
-
-  return this;
-};
-
-RotateIcon.prototype.getUrl = function () {
-  return this.canvas.toDataURL("image/png");
-};
 const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
   coordinate,
 }) => {
@@ -74,28 +32,6 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
   };
 
   useEffect(() => {
-    if (isIos) {
-      setSelectedLocationIndex(coordinate.length - 1);
-      return;
-    }
-
-    const getAngle = (
-      pos1: { lat: number; lng: number },
-      pos2: { lat: number; lng: number }
-    ) => {
-      const pi1 = (pos1.lat * Math.PI) / 180;
-      const pi2 = (pos2.lat * Math.PI) / 180;
-      const lambda1 = (pos1.lng * Math.PI) / 180;
-      const lambda2 = (pos2.lng * Math.PI) / 180;
-
-      const y = Math.sin(lambda2 - lambda1) * Math.cos(pi2);
-      const x =
-        Math.cos(pi1) * Math.sin(pi2) -
-        Math.sin(pi1) * Math.cos(pi2) * Math.cos(lambda2 - lambda1);
-      const setta = Math.atan2(y, x);
-      return ((setta * 180) / Math.PI + 360) % 360;
-    };
-
     const newMarkerList: string[][] = [];
 
     let rotateIcon = new RotateIcon();
@@ -110,10 +46,9 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
     });
 
     setRotatedMarkers(newMarkerList);
-    setTimeout(() => {
-      setSelectedLocationId(null);
-      setSelectedLocationIndex(newMarkerList.length - 1);
-    }, 0);
+    setSelectedLocationId(null);
+    setSelectedLocationIndex(newMarkerList.length - 1);
+
     console.log("RERENDER");
   }, [map, coordinate]);
 
@@ -175,6 +110,7 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
           mapContainerStyle={{
             height: "50vh",
           }}
+
         >
           {coordinate.length > 0 &&
             coordinate[selectedLocationIndex]?.length && (
@@ -202,33 +138,24 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
               url: camera,
             }}
           />
+
           <MarkerClustererF>
-            {(clusterer) => {
-              return (
-                <>
-                  {coordinate[selectedLocationIndex]?.map((location, idx) => {
-                    return (
-                      <MarkerF
-                        key={location.lat + location.lng}
-                        position={location}
-                        clusterer={clusterer}
-                        icon={{
-                          scale: 1,
-                          url: isIos
-                            ? cursor
-                            : rotatedMarkers[selectedLocationIndex][idx] ??
-                              cursor,
-                        }}
-                        onClick={() => {
-                          setSelectedLocationId(idx);
-                          setIsLoadViewVisible(true);
-                        }}
-                      ></MarkerF>
-                    );
-                  })}
-                </>
-              );
-            }}
+            {(clusterer) => (
+              <>
+                {coordinate[selectedLocationIndex]?.map((location, idx) => (
+                  <CustomMarker
+                    key={location.lat + location.lng}
+                    location={location}
+                    clusterer={clusterer}
+                    uri={rotatedMarkers[selectedLocationIndex][idx] ?? cursor}
+                    onClick={() => {
+                      setSelectedLocationId(idx);
+                      setIsLoadViewVisible(true);
+                    }}
+                  />
+                ))}
+              </>
+            )}
           </MarkerClustererF>
         </GoogleMap>
       </div>
