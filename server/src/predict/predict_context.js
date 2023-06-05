@@ -156,7 +156,7 @@ async function getUserPredictLog(user_id, req_time){
       const img_src = img_src_list[index];
 
       const resultData = response_log.map(item => item.result_data);
-      const res_time = response_log[0].res_time;
+      const res_time = new Date(response_log[0].res_time).toISOString().substring(0,10);
 
       result.push({
         req_log_id,
