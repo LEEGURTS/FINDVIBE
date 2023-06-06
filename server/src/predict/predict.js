@@ -1,14 +1,10 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const predictContext = require("./predict_context");
-
-const UserInfo = require("../connect/models/user_info");
 const dotenv = require("dotenv");
 const axios = require('axios');
-
+const path = require('path');
 dotenv.config();
-
-const tokenKey = process.env.TOKEN_KEY;
 
 const router = express.Router();
 const multer = require("multer");
@@ -17,7 +13,7 @@ const sessionAuth = require("../api/sessionAuth");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // 상대경로 - 옮기면 바꾸기
-    cb(null, "../upload_images");
+    cb(null, process.env.SAVE_PATH);
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname + "-" + Date.now() + ".png");
@@ -36,14 +32,15 @@ router.post("/", upload.array("image"), sessionAuth, async (req, res) => {
     const user_id = user_info.user_id;
 
     const imagePathList = req.files.map((img) => {
-      return img.path;
+      const imageName = path.basename(img.path);
+      return process.env.SERVER_PATH+"/file/img/"+imageName;
     });
 
-    // requrst_log_db에 저장 -> log_id, image_list 객체를 반환
+    // requrst_log_db에 저장 -> log_id, image_path 객체를 반환
     const request_log_list = await predictContext.processImagePathList(user_id, imagePathList);
-    
     // python 서버로 요청 전송
-    const url = 'http://localhost:5002/predict';
+    const url = 'http://61.74.115.247:3000/predict';
+    //const url = 'http://localhost:5002/predict';
     const response = await axios.post(url, request_log_list);
 
     // python 서버로부터 받은 예측 결과를 {string, object}로 변환
@@ -55,11 +52,9 @@ router.post("/", upload.array("image"), sessionAuth, async (req, res) => {
     });
     
     // response에 데이터 저장
-    await predictContext.processPredictList(user_id, result);
-    
-    const predictions = result.map((item) => item.predictions);
+    const res_log_list = await predictContext.processPredictList(user_id, result);
 
-    return res.status(200).json({ success: true, result:predictions });
+    return res.status(200).json({ success: true, result:res_log_list });
 
   } catch (error) {
 

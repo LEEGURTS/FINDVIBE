@@ -1,6 +1,10 @@
+const dotenv = require("dotenv");
+dotenv.config();
 // our_modules
 const PredictLog = require("../connect/models/predict_log");
 const { Op } = require("sequelize");
+const axios = require("axios");
+const file = require("../file/file");
 // DB ----------------------------------------------------------------------
 // Promise 반환 -> api에서 await을 붙여 사용가능 -> 비동기 처리
 function saveRequestLog(user_id, img_src) {
@@ -27,8 +31,7 @@ function saveResponseLog(user_id, req_log_id, result_data) {
       req_log_id : req_log_id,
       result_data : result_data,
     }).then((log)=>{
-      const log_id = log.log_id;
-      resolve(log_id);
+      resolve(log.result_data);
     }).catch((err) => {
       console.error(err);
       reject(err);
@@ -117,17 +120,26 @@ async function processImagePathList(user_id, imagePathList){
 
 async function processPredictList(user_id, predictResultList){
   try{
-    await Promise.all(
+    return await Promise.all(
       predictResultList.map(async(predictResult) => {
         const req_log_id = predictResult.log_id;
-        await Promise.all(
+        const res_log_list = await Promise.all(
           predictResult.predictions.map(async (predict)=>{
-            await saveResponseLog(user_id, req_log_id, predict);
+            const point = {
+              lat: predict.latitude,
+              lng: predict.longitude,
+              ang: predict.angle,
+              adr: predict.address,
+            };
+            const address = await getAddressFromLatLng(point);
+            point.adr = address;
+            const result = await saveResponseLog(user_id, req_log_id, point);
+            return result;
           })
         );
+        return res_log_list;
       })
     );
-    return true;
   } catch(error){
     throw new Error(error);
   }
@@ -151,27 +163,50 @@ async function getUserPredictLog(user_id, req_time){
 
     const result = [];
 
-    user_response_log_list.forEach((response_log, index) => {
-      const req_log_id = index + 1;
-      const img_src = img_src_list[index];
+    //console.log(user_response_log_list);
 
-      const resultData = response_log.map(item => item.result_data);
-      const res_time = new Date(response_log[0].res_time).toISOString().substring(0,10);
-
-      result.push({
-        req_log_id,
-        img_src,
-        result: resultData,
-        res_time
-      });
-    });
+    for (const [index, response_log] of user_response_log_list.entries()) {
+      if(!response_log[0]){
+        return;
+      }
+      const req_log_id = response_log[0].req_log_id;
+      const image_src = process.env.SERVER_URL+"/file/img/"+img_src_list[index];
+      
+      const result_data = response_log.map(item => item.result_data);
+      const res_time = new Date(response_log[0].res_time).toISOString().substring(0, 10);
+  
+      for (const predict of result_data) {
+        result.push({
+          req_log_id,
+          image_src,
+          predict,
+          res_time,
+        });
+      }
+    }
  
     return result;
   } catch(error){
     
     throw new Error(error);
   }
-  
+}
+
+// point : { lat: number; lng: number }
+async function getAddressFromLatLng(point){
+  try {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${point.lat},${point.lng}&key=${process.env.GOOGLE_MAP_KEY}`
+    const address = await axios.get(
+      url,
+      { 
+        headers: {
+          "Accept-Language":"ko"
+        }
+      });
+    return address.data.results[0].formatted_address;
+  } catch(err) {
+    console.log("error:",err);
+  }
 }
 
 module.exports = {
@@ -180,4 +215,5 @@ module.exports = {
   processImagePathList : processImagePathList,
   processPredictList : processPredictList,
   getUserPredictLog : getUserPredictLog,
+  getAddressFromLatLng : getAddressFromLatLng,
 };
