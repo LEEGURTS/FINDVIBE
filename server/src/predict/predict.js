@@ -33,15 +33,15 @@ router.post("/", upload.array("image"), sessionAuth, async (req, res) => {
 
     const imagePathList = req.files.map((img) => {
       const imageName = path.basename(img.path);
-      return process.env.SERVER_PATH+"/file/img/"+imageName;
+      return imageName;
     });
 
     // requrst_log_db에 저장 -> log_id, image_path 객체를 반환
     const request_log_list = await predictContext.processImagePathList(user_id, imagePathList);
     // python 서버로 요청 전송
-    const url = 'http://61.74.115.247:3000/predict';
-    //const url = 'http://localhost:5002/predict';
-    const response = await axios.post(url, request_log_list);
+    const url = process.env.PYTHON_URL;
+    
+    const response = await predictContext.sendPostRequestToPython(url, request_log_list);
 
     // python 서버로부터 받은 예측 결과를 {string, object}로 변환
     const result = Object.entries(response.data.result).map(([log_id, predictions]) => {

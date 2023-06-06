@@ -4,7 +4,6 @@ dotenv.config();
 const PredictLog = require("../connect/models/predict_log");
 const { Op } = require("sequelize");
 const axios = require("axios");
-const file = require("../file/file");
 // DB ----------------------------------------------------------------------
 // Promise 반환 -> api에서 await을 붙여 사용가능 -> 비동기 처리
 function saveRequestLog(user_id, img_src) {
@@ -108,7 +107,7 @@ async function processImagePathList(user_id, imagePathList){
       const request_log_list = await Promise.all(
         imagePathList.map(async (imagePath) => {
           const log_id = await saveRequestLog(user_id, imagePath);
-          return { log_id: log_id, image_path: imagePath };
+          return { log_id: log_id, image_path: getImageUrl(imagePath) };
         })
       );
 
@@ -163,14 +162,12 @@ async function getUserPredictLog(user_id, req_time){
 
     const result = [];
 
-    //console.log(user_response_log_list);
-
     for (const [index, response_log] of user_response_log_list.entries()) {
-      if(!response_log[0]){
-        return;
+      if(response_log.length==0){
+        continue;
       }
       const req_log_id = response_log[0].req_log_id;
-      const image_src = process.env.SERVER_URL+"/file/img/"+img_src_list[index];
+      const image_src = getImageUrl(img_src_list[index]);
       
       const result_data = response_log.map(item => item.result_data);
       const res_time = new Date(response_log[0].res_time).toISOString().substring(0, 10);
@@ -209,6 +206,21 @@ async function getAddressFromLatLng(point){
   }
 }
 
+async function sendPostRequestToPython (url, request_log_list) {
+  try{
+    const response = await axios.post(url, request_log_list, { timeout: 5000 });
+    return response;
+  } catch {
+    const url2 = 'http://localhost:5002/predict';
+    const response = await axios.post(url2, request_log_list, { timeout: 5000 });
+    return response;
+  }
+}
+
+function getImageUrl(imgName){
+  return process.env.SERVER_URL+"/file/img/"+imgName;
+}
+
 module.exports = {
   saveRequestLog : saveRequestLog,
   saveResponseLog : saveResponseLog,
@@ -216,4 +228,6 @@ module.exports = {
   processPredictList : processPredictList,
   getUserPredictLog : getUserPredictLog,
   getAddressFromLatLng : getAddressFromLatLng,
+  sendPostRequestToPython : sendPostRequestToPython,
+  getImageUrl : getImageUrl
 };
