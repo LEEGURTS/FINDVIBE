@@ -21,6 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 // session
+// 로컬에서 실행시키려면 store: new session.MemoryStore() 로 바꾸기
   app.use(
     session({
       secret: process.env.SESSION_KEY,
