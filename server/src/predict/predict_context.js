@@ -4,6 +4,8 @@ dotenv.config();
 const PredictLog = require("../connect/models/predict_log");
 const { Op } = require("sequelize");
 const axios = require("axios");
+const { ImageAnnotatorClient } = require("@google-cloud/vision");
+const path = require("path");
 // DB ----------------------------------------------------------------------
 // Promise 반환 -> api에서 await을 붙여 사용가능 -> 비동기 처리
 function saveRequestLog(user_id, img_src) {
@@ -221,6 +223,34 @@ function getImageUrl(imgName){
   return process.env.SERVER_URL+"/file/img/"+imgName;
 }
 
+
+async function predictByGoogle(img_list) {
+  const result = await Promise.all(
+    img_list.map(async (img) => {
+      return await useGoogleAPI(img);
+    })
+  );
+  return result;
+}
+
+async function useGoogleAPI(img_src) {
+  const url = path.resolve(__dirname,"../../../upload_images/",img_src);
+  
+  console.log("분석:",url);
+  try{
+  const keyFilename = path.join('./verify.json');
+  const client = new ImageAnnotatorClient({keyFilename});
+  const [result] = await client.landmarkDetection(url);
+  const landmarks = result.landmarkAnnotations;
+  console.log(landmarks);
+  return landmarks;
+  } catch(err){
+    console.log("에러발생:",err);
+    return [];
+  }
+  
+}
+
 module.exports = {
   saveRequestLog : saveRequestLog,
   saveResponseLog : saveResponseLog,
@@ -229,5 +259,6 @@ module.exports = {
   getUserPredictLog : getUserPredictLog,
   getAddressFromLatLng : getAddressFromLatLng,
   sendPostRequestToPython : sendPostRequestToPython,
-  getImageUrl : getImageUrl
+  getImageUrl : getImageUrl,
+  predictByGoogle : predictByGoogle,
 };

@@ -28,33 +28,40 @@ router.post("/", upload.array("image"), sessionAuth, async (req, res) => {
   try {
     // 검증 - 실패 시 에러 발생
     const user_info = req.user_info;
-
     const user_id = user_info.user_id;
+    const model_type = req.body.model;
+
+    console.log(model_type);
 
     const imagePathList = req.files.map((img) => {
       const imageName = path.basename(img.path);
       return imageName;
     });
 
-    // requrst_log_db에 저장 -> log_id, image_path 객체를 반환
-    const request_log_list = await predictContext.processImagePathList(user_id, imagePathList);
     // python 서버로 요청 전송
-    const url = process.env.PYTHON_URL;
-    
-    const response = await predictContext.sendPostRequestToPython(url, request_log_list);
+    if(model_type==="google"){
+      const result = await predictContext.predictByGoogle(imagePathList);
+      return res.status(200).json({ success: true, result:result });
+    } else {
+      // requrst_log_db에 저장 -> log_id, image_path 객체를 반환
+      const request_log_list = await predictContext.processImagePathList(user_id, imagePathList);
+      const url = process.env.PYTHON_URL;
+      const response = await predictContext.sendPostRequestToPython(url, request_log_list);
 
-    // python 서버로부터 받은 예측 결과를 {string, object}로 변환
-    const result = Object.entries(response.data.result).map(([log_id, predictions]) => {
-      return {
-        log_id,
-        predictions,
-      };
-    });
-    
-    // response에 데이터 저장
-    const res_log_list = await predictContext.processPredictList(user_id, result);
-
-    return res.status(200).json({ success: true, result:res_log_list });
+      // python 서버로부터 받은 예측 결과를 {string, object}로 변환
+      const result = Object.entries(response.data.result).map(([log_id, predictions]) => {
+        return {
+          log_id,
+          predictions,
+        };
+      });
+      
+      // response에 데이터 저장
+      const res_log_list = await predictContext.processPredictList(user_id, result);
+  
+      return res.status(200).json({ success: true, result:res_log_list });
+    }
+  
 
   } catch (error) {
 

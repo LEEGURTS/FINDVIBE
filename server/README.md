@@ -11,7 +11,23 @@
    또는
       <pre><code> yarn </code></pre>
 
-2. .env를 만들고 필요한 정보 넣기
+2.
+- .env를 만들고 필요한 정보 넣기
+
+PORT = 5000
+HOST = 'localhost'
+DB_USER = 'findvibe_user'
+PASSWORD = 'findvibe1'
+DATABASE_NAME = 'findvibe_db'
+TOKEN_KEY = string 
+SESSION_KEY = string
+SAVE_PATH = upload_images폴더의 절대경로
+SERVER_URL = string  ex)http://localhost:5000
+PYTHON_URL = string  ex)http://localhost:3000/predict
+GOOGLE_MAP_KEY = string
+GOOGLE_APPLICATION_CREDENTIALS="verify.json" -> 따로 받기
+
+- verify.json (google api 인증 관련 정보) 추가하기
 
 3. sql 폴더 들어가서 README 확인하고 DB 설치
 
