@@ -133,13 +133,23 @@ async function processPredictList(user_id, predictResultList){
               ang: predict.angle,
               adr: predict.address,
             };
-            const address = await getAddressFromLatLng(point);
-            point.adr = address;
-            const result = await saveResponseLog(user_id, req_log_id, point);
-            return result;
+            // 예측 성공
+            if(point.lat || point.lng){
+              if(point.ang!=0){
+                // google이 아님 -> 좌표로 주소 받아야함
+                const address = await getAddressFromLatLng(point);
+                point.adr = address;
+              }
+              const result = await saveResponseLog(user_id, req_log_id, point);
+              return result;
+            }
           })
         );
+        if(!res_log_list[0]){
+          return [];
+        } else {
         return res_log_list;
+        }
       })
     );
   } catch(error){
