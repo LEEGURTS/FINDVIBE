@@ -38,30 +38,67 @@ router.post("/", upload.array("image"), sessionAuth, async (req, res) => {
       return imageName;
     });
 
-    // python 서버로 요청 전송
-    if(model_type==="google"){
-      const result = await predictContext.predictByGoogle(imagePathList);
-      return res.status(200).json({ success: true, result:result });
+    const request_log_list = await predictContext.processImagePathList(user_id, imagePathList);
+    //console.log(request_log_list);
+    const req_log_id_list = request_log_list.map(item=>item.log_id);
+    var result = undefined;
+    // 사진 분석
+    if(model_type=="google"){
+      const response = await predictContext.predictByGoogle(imagePathList);
+      const transformData = {};
+      console.log("response:",response);
+
+      response.forEach((res_list, index) => {
+        const log_id = req_log_id_list[index];
+        res_list.forEach((res) => {
+          const point = {};
+          if (res.locations.length === 0) {
+            point["latitude"] = 0;
+            point["longitude"] = 0;
+            point["angle"] = 0;
+            point["address"] = 0;
+          } else {
+            point["latitude"] = res.locations[0].latLng.latitude;
+            point["longitude"] = res.locations[0].latLng.longitude;
+            point["angle"] = 0;
+            point["address"] = res.description;
+          }
+    
+          if (!transformData[log_id]) {
+            transformData[log_id] = [point];
+          } else {
+            transformData[log_id].push(point);
+          }
+        });
+      });
+
+      const result_data = await Promise.all(Object.entries(transformData).map(([log_id, predictions]) => {
+          console.log(log_id,predictions);
+          return {
+            log_id,
+            predictions,
+          };
+      }));
+
+      console.log("form:",result_data);
+      result = result_data;
     } else {
       // requrst_log_db에 저장 -> log_id, image_path 객체를 반환
-      const request_log_list = await predictContext.processImagePathList(user_id, imagePathList);
       const url = process.env.PYTHON_URL;
       const response = await predictContext.sendPostRequestToPython(url, request_log_list);
-
       // python 서버로부터 받은 예측 결과를 {string, object}로 변환
-      const result = Object.entries(response.data.result).map(([log_id, predictions]) => {
+      result = Object.entries(response.data.result).map(([log_id, predictions]) => {
+        console.log(log_id,predictions);
         return {
           log_id,
           predictions,
         };
       });
-      
-      // response에 데이터 저장
-      const res_log_list = await predictContext.processPredictList(user_id, result);
-  
-      return res.status(200).json({ success: true, result:res_log_list });
     }
-  
+    console.log("result:",result);
+    // response에 데이터 저장
+    const res_log_list = await predictContext.processPredictList(user_id, result);
+    return res.status(200).json({ success: true, result:res_log_list });
 
   } catch (error) {
 

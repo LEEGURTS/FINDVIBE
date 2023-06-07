@@ -120,6 +120,7 @@ async function processImagePathList(user_id, imagePathList){
 }
 
 async function processPredictList(user_id, predictResultList){
+  console.log("start:",predictResultList);
   try{
     return await Promise.all(
       predictResultList.map(async(predictResult) => {
@@ -242,7 +243,6 @@ async function useGoogleAPI(img_src) {
   const client = new ImageAnnotatorClient({keyFilename});
   const [result] = await client.landmarkDetection(url);
   const landmarks = result.landmarkAnnotations;
-  console.log(landmarks);
   return landmarks;
   } catch(err){
     console.log("에러발생:",err);
