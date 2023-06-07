@@ -3,12 +3,16 @@ import { useRef } from "react";
 
 interface FindLocationProps {
   imageList: File[];
+  loadingState: boolean[];
   setImageList: React.Dispatch<React.SetStateAction<File[]>>;
+  setSelectedLocationIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
   imageList,
   setImageList,
+  loadingState,
+  setSelectedLocationIndex,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -44,6 +48,7 @@ const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
         ref={inputRef}
         multiple
         onChange={(e) => {
+          console.log(e.target.files);
           handleFile(e.target.files!);
         }}
         accept=".jpg, .png"
@@ -77,22 +82,19 @@ const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
                 </div>
                 <div className="flex-grow"></div>
                 <div className="w-full tablet:w-auto mt-2 tablet:mt-0 flex flex-row items-center justify-between">
-                  <div className="text-gray text-[0.7em] flex flex-row items-center mr-[3em]">
-                    <span className="mr-[2px]">결과에 만족하셨나요?</span>
-                    {Array(5)
-                      .fill(0)
-                      .map((_, idx) => {
-                        return (
-                          <div
-                            key={idx}
-                            className="bg-shalloworange rounded-full w-[0.7em] h-[0.7em] mx-[2px]"
-                          ></div>
-                        );
-                      })}
-                  </div>
                   <div className="flex flex-row items-center">
-                    <span>위치분석 중</span>
-                    <button className="ml-2 bg-deeporange px-2 py-1 text-white">
+                    {loadingState[idx] ? (
+                      <span>위치분석 중</span>
+                    ) : (
+                      <span>위치분석 완료</span>
+                    )}
+                    <button
+                      onClick={() => setSelectedLocationIndex(idx)}
+                      className={`ml-2 bg-${
+                        loadingState[idx] ? "gray" : "deeporange"
+                      } px-2 py-1 text-white`}
+                      disabled={loadingState[idx]}
+                    >
                       위치보기
                     </button>
                   </div>

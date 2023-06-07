@@ -5,7 +5,7 @@ import HotPlaceText from "./HotPlaceText";
 
 const HotPlace: React.FunctionComponent = () => {
   return (
-    <main className="relative flex flex-col w-full top-[64px] min-h-[calc(100vh-144px)]">
+    <main className="relative flex flex-col w-full top-[64px] min-h-[calc(100vh-64px)]">
       <GridLayout>
         <HotPlaceText />
         <HotPlaceMainBox />

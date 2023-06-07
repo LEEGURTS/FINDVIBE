@@ -6,38 +6,38 @@ import { Value } from "react-calendar/dist/cjs/shared/types";
 import moment from "moment";
 import axios from "axios";
 import GoogleMapApi from "../GoogleMap/GoogleMapApi";
-import { sendGetLogRequest } from '../../API/predict';
+import { sendGetLogRequest } from "../../API/predict";
 
-interface PREDICT_RESPONSE  {
-  req_log_id: number,
-  image_src: string,
-  predict: PREDICT,
-  res_time: string
+interface PREDICT_RESPONSE {
+  req_log_id: number;
+  image_src: string;
+  predict: PREDICT;
+  res_time: string;
 }
 
 interface PREDICT {
-  adr: string,
-  ang: number,
-  lat: number,
-  lng: number,
+  adr: string;
+  ang: number;
+  lat: number;
+  lng: number;
 }
 
 interface POINT {
-  adr: string,
-  ang: number,
-  lat: number,
-  lng: number,
-  src :string,
+  adr: string;
+  ang: number;
+  lat: number;
+  lng: number;
+  src: string;
 }
 
 interface MARK {
-  [key:string] : POINT[][]
+  [key: string]: POINT[][];
 }
 
 const MyPlace: React.FunctionComponent = () => {
   const [date, setDate] = useState(new Date());
   const [marks, setMarks] = useState<MARK>({});
-
+  const [selectedLocationIndex, setSelectedLocationIndex] = useState(-1);
   const getAddressFromLatLng = async (latlng: { lat: number; lng: number }) => {
     try {
       const address = await axios.get(
@@ -49,42 +49,42 @@ const MyPlace: React.FunctionComponent = () => {
     }
   };
 
-  const handleDateChange = (date:any) => {
+  const handleDateChange = (date: any) => {
     const selectedDate = new Date(date); // Value 형식을 Date 객체로 변환
     setDate(selectedDate);
   };
 
   const GetPredictLog = () => {
     sendGetLogRequest(undefined)
-    .then((res)=>{
-      const resToMark:MARK = {};
-      const response:PREDICT_RESPONSE[] = res.result;
-      response.forEach((predict_item:PREDICT_RESPONSE)=>{
-        const { res_time, predict, image_src } = predict_item;
-        if (resToMark[res_time] === undefined) {
-          resToMark[res_time] = [];
-        }
-        const point:POINT = {
-          lat: predict.lat,
-          lng: predict.lng,
-          ang: predict.ang,
-          adr: predict.adr,
-          src: image_src
-        };
-        resToMark[res_time].push([point]);
+      .then((res) => {
+        const resToMark: MARK = {};
+        const response: PREDICT_RESPONSE[] = res.result;
+        response.forEach((predict_item: PREDICT_RESPONSE) => {
+          const { res_time, predict, image_src } = predict_item;
+          if (resToMark[res_time] === undefined) {
+            resToMark[res_time] = [];
+          }
+          const point: POINT = {
+            lat: predict.lat,
+            lng: predict.lng,
+            ang: predict.ang,
+            adr: predict.adr,
+            src: image_src,
+          };
+          resToMark[res_time].push([point]);
+        });
+        console.log(resToMark);
+        setMarks(resToMark);
+      })
+      .catch((err) => {
+        console.log(err);
+        return;
       });
-      console.log(resToMark);
-      setMarks(resToMark);
-    })
-    .catch((err)=>{
-      console.log(err);
-      return;
-    });
-  }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     GetPredictLog();
-  },[]);
+  }, []);
 
   return (
     <main className="relative w-full top-[64px] min-h-[calc(100vh-64px)]">
@@ -120,26 +120,26 @@ const MyPlace: React.FunctionComponent = () => {
         </div>
         <div className="col-start-1 col-end-7 tablet:col-start-7 mt-4 p-4 border border-gray border-opacity-60 tablet:col-end-12 bg-white drop-shadow-lg rounded-[15px]">
           <div className="font-pretendardBold text-deeporange">
-          {Object.keys(marks).find(
-            (time) => time === moment(date as Date).format("YYYY-MM-DD")
-          ) &&
-            marks[moment(date as Date).format("YYYY-MM-DD")].map((items, index) => (
-              <div key={index}>
-                {items.map((item, subIndex) => (
-                  <div key={subIndex}>
-                    <p>{item.adr}</p>
-                    <img
-                      alt=""
-                      src={item.src}
-                      className="object-fit"
-                    ></img>
+            {Object.keys(marks).find(
+              (time) => time === moment(date as Date).format("YYYY-MM-DD")
+            ) &&
+              marks[moment(date as Date).format("YYYY-MM-DD")].map(
+                (items, index) => (
+                  <div key={index}>
+                    {items.map((item, subIndex) => (
+                      <div key={subIndex}>
+                        <p>{item.adr}</p>
+                        <img alt="" src={item.src} className="object-fit"></img>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ))}
-            </div>
+                )
+              )}
+          </div>
         </div>
         <GoogleMapApi
+          selectedLocationIndex={selectedLocationIndex}
+          setSelectedLocationIndex={setSelectedLocationIndex}
           coordinate={
             (marks as any)[moment(date as Date).format("YYYY-MM-DD")] ?? []
           }

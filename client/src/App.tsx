@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import MyPagePage from "./pages/MyPagePage";
 import { useIsRN } from "./State/isNative";
 import RNNavigateBar from "./components/Header/RNNavigateBar";
+import Footer from "./components/Footer/Footer";
 
 const App: React.FunctionComponent = () => {
   const SignInPage = lazy(() => import("./pages/SignInPage"));
@@ -42,7 +43,7 @@ const App: React.FunctionComponent = () => {
           <Route element={<ProtectedRoute />}></Route>
         </Routes>
       </Suspense>
-      <div className="h-[80px] w-full bg-white"></div>
+
       <RNNavigateBar />
     </div>
   );

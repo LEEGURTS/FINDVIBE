@@ -8,29 +8,39 @@ import {
 } from "@react-google-maps/api";
 import { useState, useEffect } from "react";
 import cursor from "../../assets/Svg/Cursor.svg";
-import camera from "../../assets/Svg/Camera.svg";
-import RotateIcon, { getAngle } from "./RotateIcon";
+import RotateIcon from "./RotateIcon";
 import CustomMarker from "./CustomMarker";
+import { Coordinate } from "../../API/predict";
 
 interface GoogleMapApiProps {
-  coordinate: { lat: number; lng: number }[][];
+  coordinate: Coordinate[][];
+  selectedLocationIndex: number;
+  setSelectedLocationIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
   coordinate,
+  selectedLocationIndex,
+  setSelectedLocationIndex,
 }) => {
-  const [selectedLocationIndex, setSelectedLocationIndex] = useState(-1);
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
     null
   );
   const [isLoadViewVisible, setIsLoadViewVisible] = useState(false);
   const [map, setMap] = useState<google.maps.Map>();
   const [rotatedMarkers, setRotatedMarkers] = useState<string[][]>([]);
-  const koreaUniverSity = {
-    lat: 37.588556,
-    lng: 127.019981,
+  const center = {
+    lat:
+      coordinate[selectedLocationIndex]?.reduce(
+        (acc, cur) => acc + cur.lat,
+        0
+      ) / coordinate[selectedLocationIndex]?.length || 37.619774,
+    lng:
+      coordinate[selectedLocationIndex]?.reduce(
+        (acc, cur) => acc + cur.lng,
+        0
+      ) / coordinate[selectedLocationIndex]?.length || 127.060926,
   };
-
   useEffect(() => {
     const newMarkerList: string[][] = [];
 
@@ -38,16 +48,16 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
     coordinate.forEach((selected) => {
       const markerList: string[] = [];
       selected.forEach((location) => {
-        markerList.push(
-          rotateIcon.setRotation(getAngle(koreaUniverSity, location)).getUrl()
-        );
+        markerList.push(rotateIcon.setRotation(location.degree).getUrl());
       });
       newMarkerList.push(markerList);
     });
 
     setRotatedMarkers(newMarkerList);
-    setSelectedLocationId(null);
-    setSelectedLocationIndex(newMarkerList.length - 1);
+    setTimeout(() => {
+      setSelectedLocationId(null);
+      setSelectedLocationIndex(newMarkerList.length - 1);
+    }, 10);
 
     console.log("RERENDER");
   }, [map, coordinate]);
@@ -59,7 +69,6 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
   useEffect(() => {
     if (map && isLoaded) {
       const bounds = new window.google.maps.LatLngBounds();
-      bounds.extend(koreaUniverSity);
       coordinate[selectedLocationIndex]?.forEach((item) => {
         bounds.extend(item);
       });
@@ -93,24 +102,16 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
         <GoogleMap
           onLoad={(map) => {
             setMap(map);
+            setTimeout(() => {
+              map.setZoom(16);
+              map.setCenter(center);
+            }, 100);
           }}
           onClick={() => setSelectedLocationId(null)}
-          center={{
-            lat:
-              coordinate[selectedLocationIndex]?.reduce(
-                (acc, cur) => acc + cur.lat,
-                0
-              ) / coordinate[selectedLocationIndex]?.length || 37.551399,
-            lng:
-              coordinate[selectedLocationIndex]?.reduce(
-                (acc, cur) => acc + cur.lng,
-                0
-              ) / coordinate[selectedLocationIndex]?.length || 126.988259,
-          }}
+          center={center}
           mapContainerStyle={{
             height: "50vh",
           }}
-
         >
           {coordinate.length > 0 &&
             coordinate[selectedLocationIndex]?.length && (
@@ -131,13 +132,6 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
               }}
             />
           </div>
-
-          <MarkerF
-            position={koreaUniverSity}
-            icon={{
-              url: camera,
-            }}
-          />
 
           <MarkerClustererF>
             {(clusterer) => (
