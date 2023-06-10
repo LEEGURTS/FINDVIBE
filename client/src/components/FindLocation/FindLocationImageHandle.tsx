@@ -11,15 +11,29 @@ function testRequest() {
   });
 }
 
+export enum MODULETYPE {
+  GOOGLE,
+  PYTHON,
+}
+
+export enum SUCCESSTYPE {
+  SUCCESS,
+  FAIL,
+  WAITING,
+}
+
 const FindLocationImageHandle: React.FunctionComponent = () => {
   const [imageList, setImageList] = useState<File[]>([]);
   const [selectedLocationIndex, setSelectedLocationIndex] = useState(-1);
-  const [loadingState, setLoadingState] = useState<boolean[]>([]);
+  const [successState, setSuccessState] = useState<SUCCESSTYPE[]>([]);
   // 분석 결과 저장하는 state
   const [analyzeResultList, setAnalyzeResultList] = useState<Coordinate[][]>(
     []
   );
   const [startImageIndex, setStartImageIndex] = useState(0);
+  const [selectedModule, setSelectedModule] = useState<MODULETYPE>(
+    MODULETYPE.GOOGLE
+  );
   // 좌표 계산 함수 -> 분석 결과로 대체하기
   const getCoordinate = () => {
     return Array(Math.ceil(Math.random() * 3 + 1))
@@ -27,23 +41,29 @@ const FindLocationImageHandle: React.FunctionComponent = () => {
       .map(() => ({
         lat: Math.random() / 100 + 37.588556,
         lng: Math.random() / 100 + 127.019981,
-        degree: Math.random() * 360,
+        ang: Math.random() * 360,
       }));
   };
 
-  const sendTestRequest = async (imgList: File[]) => {
-    setLoadingState((loadingState) => [
-      ...loadingState,
-      ...imgList.map((_) => true),
+  const sendImgPredictRequest = async (imgList: File[]) => {
+    setSuccessState((successState) => [
+      ...successState,
+      ...imgList.map((_) => SUCCESSTYPE.WAITING),
     ]);
-    const res = await testRequest();
+    const res = await sendPredictRequest(imgList);
     setAnalyzeResultList((analyzeResultList) => [
       ...analyzeResultList,
-      getCoordinate(),
+      ...res.result.map((result: Coordinate[]) => result),
     ]);
-    setLoadingState((loadingState) =>
-      loadingState.map((_, index) =>
-        loadingState.length - 1 - imgList.length < index ? false : _
+    console.log(res.result);
+    setSuccessState((successState) =>
+      successState.map((state, index) =>
+        successState.length - 1 - imgList.length < index
+          ? res.result[index - (successState.length - imgList.length)].length >
+            0
+            ? SUCCESSTYPE.SUCCESS
+            : SUCCESSTYPE.FAIL
+          : state
       )
     );
   };
@@ -51,7 +71,7 @@ const FindLocationImageHandle: React.FunctionComponent = () => {
     if (!imageList.length) {
       return;
     }
-    sendTestRequest(imageList.slice(startImageIndex));
+    sendImgPredictRequest(imageList.slice(startImageIndex));
     setStartImageIndex(imageList.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageList]);
@@ -61,11 +81,15 @@ const FindLocationImageHandle: React.FunctionComponent = () => {
       <FindLocationGetImageBox
         imageList={imageList}
         setImageList={setImageList}
-        loadingState={loadingState}
+        successState={successState}
         setSelectedLocationIndex={setSelectedLocationIndex}
+        selectedModule={selectedModule}
+        setSelectedModule={setSelectedModule}
       />
       <GoogleMapApi
-        coordinate={analyzeResultList}
+        coordinate={analyzeResultList.filter(
+          (analyzeResult) => analyzeResult.length > 0
+        )}
         selectedLocationIndex={selectedLocationIndex}
         setSelectedLocationIndex={setSelectedLocationIndex}
       />

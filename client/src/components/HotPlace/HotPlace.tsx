@@ -10,7 +10,6 @@ const HotPlace: React.FunctionComponent = () => {
         <HotPlaceText />
         <HotPlaceMainBox />
       </GridLayout>
-      <div className="flex-grow"></div>
       <Footer />
     </main>
   );

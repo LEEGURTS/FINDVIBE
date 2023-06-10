@@ -65,7 +65,10 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
   const renderAuthButtons = () => {
     if (loginState.isLogin) {
       return (
-        <div className="col-start-12 justify-self-end justify-between w-[150px] flex">
+        <div className="col-start-12 justify-self-end justify-between w-[250px] flex items-center">
+          <button onClick={() => navigate("/mypage")} className="mx-2">
+            마이 페이지
+          </button>
           <button
             className="bg-gradient-to-r from-deeporange to-shalloworange px-4 py-2 rounded-full text-white flex items-center justify-center font-pretendardBold"
             onClick={() => {

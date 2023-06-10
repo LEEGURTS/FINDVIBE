@@ -82,9 +82,6 @@ const Signin: React.FunctionComponent = () => {
           >
             회원가입
           </button>
-          <button className="w-full py-2 px-4 bg-white drop-shadow-xl">
-            구글 로그인
-          </button>
         </div>
       </GridLayout>
     </main>

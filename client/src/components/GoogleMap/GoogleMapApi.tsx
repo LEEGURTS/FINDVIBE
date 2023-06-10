@@ -48,7 +48,7 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
     coordinate.forEach((selected) => {
       const markerList: string[] = [];
       selected.forEach((location) => {
-        markerList.push(rotateIcon.setRotation(location.degree).getUrl());
+        markerList.push(rotateIcon.setRotation(location.ang).getUrl());
       });
       newMarkerList.push(markerList);
     });
@@ -58,8 +58,6 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
       setSelectedLocationId(null);
       setSelectedLocationIndex(newMarkerList.length - 1);
     }, 10);
-
-    console.log("RERENDER");
   }, [map, coordinate]);
 
   const { isLoaded } = useLoadScript({

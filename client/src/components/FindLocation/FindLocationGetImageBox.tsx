@@ -1,18 +1,28 @@
 import PlusIconSvg from "./../../assets/Svg/PlusIconSvg";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { MODULETYPE, SUCCESSTYPE } from "./FindLocationImageHandle";
 
 interface FindLocationProps {
   imageList: File[];
-  loadingState: boolean[];
   setImageList: React.Dispatch<React.SetStateAction<File[]>>;
   setSelectedLocationIndex: React.Dispatch<React.SetStateAction<number>>;
+  selectedModule: MODULETYPE;
+  setSelectedModule: React.Dispatch<React.SetStateAction<MODULETYPE>>;
+  successState: SUCCESSTYPE[];
 }
+const spring = {
+  type: "spring",
+  stiffness: 700,
+  damping: 30,
+};
 
 const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
   imageList,
   setImageList,
-  loadingState,
   setSelectedLocationIndex,
+  selectedModule,
+  setSelectedModule,
+  successState,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -42,13 +52,35 @@ const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
 
   return (
     <>
+      <div className="col-span-6 tablet:col-start-2 tablet:col-end-12 flex flex-col items-end">
+        <div
+          className={`w-[50px] h-[30px] duration-300 bg-${
+            selectedModule ? "gray" : "deeporange"
+          } ${
+            selectedModule && "bg-opacity-40"
+          } flex justify-start rounded-[50px] p-[5px] cursor-pointer`}
+          onClick={() =>
+            setSelectedModule(
+              selectedModule ? MODULETYPE.GOOGLE : MODULETYPE.PYTHON
+            )
+          }
+        >
+          <div
+            className={`w-[20px] h-[20px] bg-white rounded-full duration-300 ${
+              selectedModule ? "translate-x-[20px]" : ""
+            }`}
+          />
+        </div>
+        <p className="text-[10px] text-gray my-2">
+          위치분석 모듈을 선택할 수 있습니다.
+        </p>
+      </div>
       <input
         type="file"
         className="invisible w-[0px] h-[0px]"
         ref={inputRef}
         multiple
         onChange={(e) => {
-          console.log(e.target.files);
           handleFile(e.target.files!);
         }}
         accept=".jpg, .png"
@@ -83,17 +115,21 @@ const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
                 <div className="flex-grow"></div>
                 <div className="w-full tablet:w-auto mt-2 tablet:mt-0 flex flex-row items-center justify-between">
                   <div className="flex flex-row items-center">
-                    {loadingState[idx] ? (
+                    {successState[idx] === SUCCESSTYPE.WAITING ? (
                       <span>위치분석 중</span>
+                    ) : successState[idx] === SUCCESSTYPE.SUCCESS ? (
+                      <span>분석완료</span>
                     ) : (
-                      <span>위치분석 완료</span>
+                      <span>분석실패</span>
                     )}
                     <button
                       onClick={() => setSelectedLocationIndex(idx)}
                       className={`ml-2 bg-${
-                        loadingState[idx] ? "gray" : "deeporange"
+                        successState[idx] !== SUCCESSTYPE.SUCCESS
+                          ? "gray"
+                          : "deeporange"
                       } px-2 py-1 text-white`}
-                      disabled={loadingState[idx]}
+                      disabled={successState[idx] !== SUCCESSTYPE.SUCCESS}
                     >
                       위치보기
                     </button>

@@ -3,7 +3,7 @@ import { sendMultipartRequest, sendPostRequest } from "./api";
 export interface Coordinate {
   lat: number;
   lng: number;
-  degree: number;
+  ang: number;
 }
 
 export const sendPredictRequest = async (imageFiles: File[]) => {

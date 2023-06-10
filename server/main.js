@@ -4,8 +4,8 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const session = require("express-session");
+//const MongoStore = require("connect-mongo");
 
 dotenv.config();
 const route = require("./src/route/route");
@@ -22,18 +22,18 @@ app.use(cors());
 
 // session
 // 로컬에서 실행시키려면 store: new session.MemoryStore() 로 바꾸기
-  app.use(
-    session({
-      secret: process.env.SESSION_KEY,
-      resave: false,
-      saveUninitialized: false,
-      store: MongoStore.create({mongoUrl:`mongodb://localhost:27017/findvibe_session_db`}),
-      cookie: {
-        secure: false,
-        maxAge: 24 * 60 * 60 * 1000, // 1일
-      },
-    })
-  );
+app.use(
+  session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: false,
+    store: new session.MemoryStore(),
+    cookie: {
+      secure: false,
+      maxAge: 24 * 60 * 60 * 1000, // 1일
+    },
+  })
+);
 
 // build 파일 접근
 app.use(express.static(`${__dirname}/../client/build`));
