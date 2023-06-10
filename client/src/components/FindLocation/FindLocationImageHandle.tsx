@@ -55,7 +55,7 @@ const FindLocationImageHandle: React.FunctionComponent = () => {
       ...analyzeResultList,
       ...res.result.map((result: Coordinate[]) => result),
     ]);
-    console.log(res.result);
+
     setSuccessState((successState) =>
       successState.map((state, index) =>
         successState.length - 1 - imgList.length < index
