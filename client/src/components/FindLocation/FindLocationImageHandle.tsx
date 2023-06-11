@@ -64,6 +64,8 @@ const FindLocationImageHandle: React.FunctionComponent = () => {
       )
     );
   };
+  console.log(analyzeResultList);
+  console.log(selectedLocationIndex);
   useEffect(() => {
     if (!imageList.length) {
       return;

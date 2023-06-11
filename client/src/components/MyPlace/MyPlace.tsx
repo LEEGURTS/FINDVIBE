@@ -22,11 +22,7 @@ interface PREDICT {
   lng: number;
 }
 
-interface POINT {
-  adr: string;
-  ang: number;
-  lat: number;
-  lng: number;
+interface POINT extends PREDICT {
   src: string;
 }
 
@@ -59,21 +55,32 @@ const MyPlace: React.FunctionComponent = () => {
       .then((res) => {
         const resToMark: MARK = {};
         const response: PREDICT_RESPONSE[] = res.result;
+
+        const transformedData: Record<string, Record<number, POINT[]>> = {};
+
         response.forEach((predict_item: PREDICT_RESPONSE) => {
-          const { res_time, predict, image_src } = predict_item;
-          if (resToMark[res_time] === undefined) {
-            resToMark[res_time] = [];
+          if (!transformedData[predict_item.res_time]) {
+            transformedData[predict_item.res_time] = {};
           }
-          const point: POINT = {
-            lat: predict.lat,
-            lng: predict.lng,
-            ang: predict.ang,
-            adr: predict.adr,
-            src: image_src,
-          };
-          resToMark[res_time].push([point]);
+          if (
+            !transformedData[predict_item.res_time][predict_item.req_log_id]
+          ) {
+            transformedData[predict_item.res_time][predict_item.req_log_id] =
+              [];
+          }
+          transformedData[predict_item.res_time][predict_item.req_log_id].push({
+            src: predict_item.image_src,
+            ...predict_item.predict,
+          });
         });
-        console.log(resToMark);
+
+        Object.keys(transformedData).forEach((date) => {
+          const points: POINT[][] = [];
+          Object.keys(transformedData[date]).forEach((logId) => {
+            points.push(transformedData[date][Number(logId)]);
+          });
+          resToMark[date] = points;
+        });
         setMarks(resToMark);
       })
       .catch((err) => {
@@ -89,7 +96,7 @@ const MyPlace: React.FunctionComponent = () => {
   return (
     <main className="relative w-full top-[64px] min-h-[calc(100vh-64px)]">
       <GridLayout>
-        <div className="col-start-1 col-end-7 tablet:col-start-2 tablet:col-end-7 mt-4 flex items-center justify-center">
+        <div className="col-start-1 col-end-7 tablet:col-start-2 tablet:col-end-7 mt-4 flex items-center justify-center h-[350px]">
           <Calendar
             onChange={handleDateChange}
             value={date}
@@ -118,7 +125,7 @@ const MyPlace: React.FunctionComponent = () => {
             }}
           />
         </div>
-        <div className="col-start-1 col-end-7 tablet:col-start-7 mt-4 p-4 border border-gray border-opacity-60 tablet:col-end-12 bg-white drop-shadow-lg rounded-[15px]">
+        <div className="col-start-1 col-end-7 tablet:col-start-7 mt-4 p-4 border border-gray h-[350px] overflow-y-scroll scrollbar-hide border-opacity-60 tablet:col-end-12 bg-white drop-shadow-lg rounded-[15px]">
           <div className="font-pretendardBold text-deeporange">
             {Object.keys(marks).find(
               (time) => time === moment(date as Date).format("YYYY-MM-DD")

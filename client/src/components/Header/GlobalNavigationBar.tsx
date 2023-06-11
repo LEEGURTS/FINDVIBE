@@ -66,7 +66,9 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
     if (loginState.isLogin) {
       return (
         <div className="col-start-12 justify-self-end justify-between flex items-center">
-          <p className="mx-2">{`안녕하세요, ${loginState.nickname}님.`}</p>
+          {screenWidth > 760 && (
+            <p className="mx-2 ">{`안녕하세요, ${loginState.nickname}님.`}</p>
+          )}
           <button onClick={() => navigate("/mypage")} className="mx-2">
             마이 페이지
           </button>
@@ -111,7 +113,7 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
           <LogoSvg />
         </button>
         {screenWidth >= 640 && (
-          <div className="ml-[20px] col-start-4 w-[220px] flex items-center justify-between">
+          <div className="ml-[20px] col-start-4 w-[140px] flex items-center justify-between">
             <button
               className="invisible tablet:visible"
               onClick={() => navigate("/hotplace")}

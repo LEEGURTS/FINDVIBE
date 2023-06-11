@@ -45,8 +45,6 @@ const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
     setImageList([...imageList, ...Array.from(fileList)]);
   };
 
-  console.log(selectedModule);
-
   return (
     <>
       <div className="col-span-6 tablet:col-start-2 tablet:col-end-12 flex flex-col items-end">
@@ -82,7 +80,6 @@ const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
         type="file"
         className="invisible w-[0px] h-[0px]"
         ref={inputRef}
-        multiple
         onChange={(e) => {
           handleFile(e.target.files!);
         }}

@@ -6,11 +6,12 @@ import {
   MarkerClustererF,
   StreetViewPanorama,
 } from "@react-google-maps/api";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, LegacyRef } from "react";
 import cursor from "../../assets/Svg/Cursor.svg";
 import RotateIcon from "./RotateIcon";
 import CustomMarker from "./CustomMarker";
 import { Coordinate } from "../../API/predict";
+import { throttle } from "lodash";
 
 interface GoogleMapApiProps {
   coordinate: Coordinate[][];
@@ -29,6 +30,23 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
   const [isLoadViewVisible, setIsLoadViewVisible] = useState(false);
   const [map, setMap] = useState<google.maps.Map>();
   const [rotatedMarkers, setRotatedMarkers] = useState<string[][]>([]);
+  const googleRef = useRef<HTMLDivElement | null>(null);
+  const [height, setHeight] = useState(0);
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+    };
+    const throttleResize = throttle(handleResize, 150);
+    document.addEventListener("resize", throttleResize);
+    return () => document.removeEventListener("resize", throttleResize);
+  }, []);
+
+  useEffect(() => {
+    setHeight(googleRef.current?.getBoundingClientRect().height || 0);
+  }, [googleRef.current?.getBoundingClientRect().height]);
+
   const center = {
     lat:
       coordinate[selectedLocationIndex]?.reduce(
@@ -56,7 +74,6 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
     setRotatedMarkers(newMarkerList);
     setTimeout(() => {
       setSelectedLocationId(null);
-      setSelectedLocationIndex(newMarkerList.length - 1);
     }, 10);
   }, [map, coordinate]);
 
@@ -79,7 +96,12 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
   }
   return (
     <>
-      <div className=" col-span-6 tablet:col-start-1 tablet:col-span-1 flex flex-row tablet:flex-col items-center justify-center">
+      <div
+        className=" col-span-6 tablet:col-start-1 tablet:col-span-1 flex flex-row tablet:flex-col items-center overflow-y-scroll scrollbar-hide"
+        style={{
+          height: width > 640 ? height : "50px",
+        }}
+      >
         {coordinate.map((_, idx) => {
           return (
             <button
@@ -96,7 +118,10 @@ const GoogleMapApi: React.FunctionComponent<GoogleMapApiProps> = ({
           );
         })}
       </div>
-      <div className=" border border-shalloworange p-2 col-span-6 tablet:col-start-2 tablet:col-end-12">
+      <div
+        className=" border border-shalloworange p-2 col-span-6 tablet:col-start-2 tablet:col-end-12"
+        ref={googleRef}
+      >
         <GoogleMap
           onLoad={(map) => {
             setMap(map);
