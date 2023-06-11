@@ -220,14 +220,9 @@ async function getAddressFromLatLng(point){
 }
 
 async function sendPostRequestToPython (url, request_log_list) {
-  try{
-    const response = await axios.post(url, request_log_list, { timeout: 5000 });
+    const python_url = 'http://localhost:5002/predict';
+    const response = await axios.post(python_url, request_log_list);
     return response;
-  } catch {
-    const url2 = 'http://localhost:5002/predict';
-    const response = await axios.post(url2, request_log_list, { timeout: 5000 });
-    return response;
-  }
 }
 
 function getImageUrl(imgName){
