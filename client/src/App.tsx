@@ -36,11 +36,13 @@ const App: React.FunctionComponent = () => {
           />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/mypage" element={<MyPagePage />} />
-          <Route path="/myplace" element={<MyPlacePage />} />
           <Route path="/findvibe" element={<FindLocationPage />} />
-          <Route path="/hotplace" element={<HotPlacePage />} />
-          <Route element={<ProtectedRoute />}></Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/mypage" element={<MyPagePage />} />
+            <Route path="/myplace" element={<MyPlacePage />} />
+
+            <Route path="/hotplace" element={<HotPlacePage />} />
+          </Route>
         </Routes>
       </Suspense>
 

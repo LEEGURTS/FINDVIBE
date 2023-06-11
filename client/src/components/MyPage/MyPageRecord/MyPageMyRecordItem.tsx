@@ -11,7 +11,7 @@ const MyPageMyRecordItem: React.FunctionComponent<MyPageMyRecordItemProps> = ({
 }) => {
   return (
     <div className="">
-      <img src={img} alt="" />
+      <img src={img} alt="" className="aspect-square w-full" />
       <p className="font-bold text-[1.2em]">{location}</p>
       <p className="text-gray">{date}</p>
     </div>

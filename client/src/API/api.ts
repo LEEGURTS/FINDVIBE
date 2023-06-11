@@ -21,8 +21,6 @@ export const sendMultipartRequest = async (
     form.append("image", formData, "image" + i);
   });
 
-  form.append("model", "google");
-
   try {
     const response = await axios({
       method: "POST",

@@ -10,11 +10,6 @@ interface FindLocationProps {
   setSelectedModule: React.Dispatch<React.SetStateAction<MODULETYPE>>;
   successState: SUCCESSTYPE[];
 }
-const spring = {
-  type: "spring",
-  stiffness: 700,
-  damping: 30,
-};
 
 const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
   imageList,
@@ -50,15 +45,20 @@ const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
     setImageList([...imageList, ...Array.from(fileList)]);
   };
 
+  console.log(selectedModule);
+
   return (
     <>
       <div className="col-span-6 tablet:col-start-2 tablet:col-end-12 flex flex-col items-end">
+        <p className="text-[10px] text-gray my-2">
+          {selectedModule === MODULETYPE.GOOGLE ? "Cloud Vision" : "DELF Model"}
+        </p>
         <div
-          className={`w-[50px] h-[30px] duration-300 bg-${
-            selectedModule ? "gray" : "deeporange"
-          } ${
-            selectedModule && "bg-opacity-40"
-          } flex justify-start rounded-[50px] p-[5px] cursor-pointer`}
+          className="w-[50px] h-[30px] duration-300 flex justify-start rounded-[50px] p-[5px] cursor-pointer drop-shadow-lg"
+          style={{
+            backgroundColor:
+              selectedModule === MODULETYPE.GOOGLE ? "#4B89DC" : "#EA6943",
+          }}
           onClick={() =>
             setSelectedModule(
               selectedModule ? MODULETYPE.GOOGLE : MODULETYPE.PYTHON
@@ -66,9 +66,12 @@ const FindLocationGetImageBox: React.FunctionComponent<FindLocationProps> = ({
           }
         >
           <div
-            className={`w-[20px] h-[20px] bg-white rounded-full duration-300 ${
-              selectedModule ? "translate-x-[20px]" : ""
-            }`}
+            className="w-[20px] h-[20px] bg-white rounded-full duration-300 drop-shadow-md"
+            style={{
+              transform: `translateX(${
+                selectedModule === MODULETYPE.PYTHON ? "0" : "20px"
+              })`,
+            }}
           />
         </div>
         <p className="text-[10px] text-gray my-2">

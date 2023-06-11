@@ -65,7 +65,8 @@ const GlobalNavigationBar: React.FunctionComponent = () => {
   const renderAuthButtons = () => {
     if (loginState.isLogin) {
       return (
-        <div className="col-start-12 justify-self-end justify-between w-[250px] flex items-center">
+        <div className="col-start-12 justify-self-end justify-between flex items-center">
+          <p className="mx-2">{`안녕하세요, ${loginState.nickname}님.`}</p>
           <button onClick={() => navigate("/mypage")} className="mx-2">
             마이 페이지
           </button>
